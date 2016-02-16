@@ -1,0 +1,28 @@
+
+/* 
+    Created on : Jan 19, 2016, 4:53:50 PM
+    Author     : Alyson
+*/
+* {
+	margin: 0;
+}
+html, body {
+	height: 100%;
+}
+.wrapper {
+	min-height: 100%;
+        /**height: auto !important;**/
+	padding: 0 auto -10px; /* the bottom margin is the negative value of the footer's height */
+}
+.footer, .push {
+	height: 10px; /* '.push' must be the same height as 'footer' */
+        clear:both;
+}
+
+/*
+
+Sticky Footer by Ryan Fait
+http://ryanfait.com/
+
+*/
+
