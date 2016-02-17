@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,11 @@ public class MockAuthorDao implements AuthorDaoStrategy{
 //            System.out.println(at.toString());
 //        }
 //    }
+
+    @Override
+    public String deleteAuthorById(int authorId) throws ClassNotFoundException, SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     
 }

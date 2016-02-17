@@ -1,0 +1,5 @@
+Select * from author;
+Insert into author (author_id, author_name, date_added) values(3,"George R.R. Martin", "2007-07-02");
+delete from author where author_id = 3;
+update author set author_id = 3 where author_id = 6;
+

@@ -82,6 +82,10 @@ public class DBMySqlStrategy implements DBStrategy {
 
     /**
      * Make sure you open and close a connection when using this method.
+     * Method deletes a single record in a table. Decision on the key's value
+     * which has been brought in as an object is decided through an instanceOf
+     * statement. Only set up currrently for String and Int. 
+     * 
      * @param tableName
      * @param columnName
      * @param primaryKey
@@ -113,6 +117,15 @@ public class DBMySqlStrategy implements DBStrategy {
         System.out.println("Record has been deleted");
 
     }
+    
+    public void createNewRecordInTable(String tableName, List recordData){
+        PreparedStatement createRecord = null;
+        String createQryString = null;
+        String columnNames = null;
+        String rowData = null;
+        
+        createQryString = "INSERT INTO " + tableName + "(" + columnNames + ") VALUES(" + rowData + ")";
+    }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         DBStrategy db = new DBMySqlStrategy();
@@ -122,7 +135,7 @@ public class DBMySqlStrategy implements DBStrategy {
                 "root", "admin");
         List<Map<String, Object>> rawData = db.findAllRecordsForTable("author", 0);
         System.out.println(rawData);
-        db.deleteRecordInTable("author", "author_id", 3);
+        //db.deleteRecordInTable("author", "author_id", 3);
         rawData = db.findAllRecordsForTable("author", 0);
         db.closeConnection();
         System.out.println(rawData);

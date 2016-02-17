@@ -16,9 +16,17 @@ public class AuthorDao implements AuthorDaoStrategy {
     private static final String URL = "jdbc:mysql://localhost:3306/book";
     private static final String USER = "root";
     private static final String PASSWORD = "admin";
+    //table constants
+    private static final String TABLE_NAME = "author";
+    private static final String PRIMARY_KEY_COLUMN_NAME = "author_id";
     //dbstrategy object
     private DBStrategy db = new DBMySqlStrategy();
 
+    /**
+     *
+     * @return @throws ClassNotFoundException
+     * @throws SQLException
+     */
     @Override
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException {
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
@@ -46,11 +54,37 @@ public class AuthorDao implements AuthorDaoStrategy {
         return authors;
     }
 
+    @Override
+    public String deleteAuthorById(int authorId) throws ClassNotFoundException, SQLException {
+        String msg = null;
+
+        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        Object primaryKey = authorId;
+        try {
+            db.deleteRecordInTable(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
+            msg = "Deletion of authorId: " + authorId  + " successful.";
+            return msg;
+        } catch (SQLException sql) {
+            //fix this
+            System.out.println(sql.getMessage());
+            msg = "Error: Deletion of authorId: " + authorId + " could not be completed.";
+            return msg;
+        }
+    }
+
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         AuthorDaoStrategy dao = new AuthorDao();
 
         List<Author> authors = dao.getAuthorList();
 
+        System.out.println(authors);
+        
+        String deleteComplete = dao.deleteAuthorById(3);
+        
+        System.out.println(deleteComplete);
+        
+        authors = dao.getAuthorList();
+        
         System.out.println(authors);
     }
 }
