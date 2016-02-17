@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.sql.Array;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -20,5 +21,5 @@ public interface DBStrategy {
     
     public abstract void deleteRecordInTable(String tableName, String columnName, Object primaryKey) throws SQLException;
     
-    public abstract void createNewRecordInTable(String tableName, List recordData) throws SQLException;
+    public abstract void createNewRecordInTable(String tableName, Object[] recordData) throws SQLException;
 }

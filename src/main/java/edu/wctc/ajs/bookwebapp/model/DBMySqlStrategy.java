@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -81,11 +82,11 @@ public class DBMySqlStrategy implements DBStrategy {
     }
 
     /**
-     * Make sure you open and close a connection when using this method.
-     * Method deletes a single record in a table. Decision on the key's value
-     * which has been brought in as an object is decided through an instanceOf
-     * statement. Only set up currrently for String and Int. 
-     * 
+     * Make sure you open and close a connection when using this method. Method
+     * deletes a single record in a table. Decision on the key's value which has
+     * been brought in as an object is decided through an instanceOf statement.
+     * Only set up currrently for String and Int.
+     *
      * @param tableName
      * @param columnName
      * @param primaryKey
@@ -109,17 +110,15 @@ public class DBMySqlStrategy implements DBStrategy {
         deleteRecord = conn.prepareStatement(deleteQryString);
         if (primaryKey instanceof String) {
             deleteRecord.setString(1, primaryKey.toString());
-        }else{
+        } else {
             deleteRecord.setInt(1, Integer.parseInt(primaryKey.toString()));
         }
-        System.out.println(deleteRecord);
         deleteRecord.executeUpdate();
-        System.out.println("Record has been deleted");
 
     }
-    
+
     @Override
-    public void createNewRecordInTable(String tableName, List recordData) throws SQLException{
+    public void createNewRecordInTable(String tableName, Object[] recordData) throws SQLException {
         PreparedStatement createRecord = null;
         String createQryString = null;
         String columnNames = "";
@@ -127,24 +126,32 @@ public class DBMySqlStrategy implements DBStrategy {
         String sql = "SELECT * FROM " + tableName;
         Statement smt = conn.createStatement();
         ResultSet rs = smt.executeQuery(sql);
+        int columnCounterForPreparedStatement = 0;
         //the result set knows information from the table, thats is called metadata
         //metadata is information about the table.
         ResultSetMetaData rsmd = rs.getMetaData();
         //get the colum count from the metadata
         int columnCount = rsmd.getColumnCount();
-        for(int i = 1; i <= columnCount; i++){
-            if(i < columnCount && i > 1){
+        for (int i = 1; i <= columnCount; i++) {
+            if (i < columnCount && i > 1) {
                 columnNames = columnNames.concat(rsmd.getColumnName(i) + " , ");
                 rowData = rowData.concat("?, ");
-            }else if(i == columnCount){
+                columnCounterForPreparedStatement++;
+            } else if (i == columnCount) {
                 columnNames = columnNames.concat(rsmd.getColumnName(i) + "");
                 rowData = rowData.concat("?");
+                columnCounterForPreparedStatement++;
             }
-            
+
         }
-        
         createQryString = "INSERT INTO " + tableName + "(" + columnNames + ") VALUES(" + rowData + ")";
-        System.out.println(createQryString);
+        createRecord = conn.prepareStatement(createQryString);
+        for (int i = 0; i < columnCounterForPreparedStatement; i++) {
+            createRecord.setString((i + 1), recordData[i].toString());
+        }
+
+        
+        createRecord.executeUpdate();
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
@@ -157,12 +164,14 @@ public class DBMySqlStrategy implements DBStrategy {
         System.out.println(rawData);
         //db.deleteRecordInTable("author", "author_id", 3);
         rawData = db.findAllRecordsForTable("author", 0);
-        
+
         System.out.println(rawData);
-        List data = new ArrayList(Arrays.asList("Joe", "2001-02-01"));
+        Object[] data = {
+            "John Green",
+            "2000-01-02"
+        };
         db.createNewRecordInTable("author", data);
         db.closeConnection();
-        
-        
+
     }
 }
