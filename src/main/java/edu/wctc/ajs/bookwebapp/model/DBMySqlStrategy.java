@@ -85,7 +85,8 @@ public class DBMySqlStrategy implements DBStrategy {
      * Make sure you open and close a connection when using this method. Method
      * deletes a single record in a table. Decision on the key's value which has
      * been brought in as an object is decided through an instanceOf statement.
-     * Only set up currrently for String and Int.
+     * Only set up currrently for String and Int. Returns int to show how many
+     * records have been deleted.
      *
      * @param tableName
      * @param columnName
@@ -93,7 +94,7 @@ public class DBMySqlStrategy implements DBStrategy {
      * @throws SQLException
      */
     @Override
-    public void deleteRecordById(String tableName, String columnName, Object primaryKey) throws SQLException {
+    public int deleteRecordById(String tableName, String columnName, Object primaryKey) throws SQLException {
         if (tableName.isEmpty() || columnName.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -101,15 +102,18 @@ public class DBMySqlStrategy implements DBStrategy {
         PreparedStatement deleteRecord = null;
         String deleteQryString = null;
         deleteQryString = "DELETE FROM " + tableName + " WHERE " + columnName + "=?";
+        
 
         deleteRecord = conn.prepareStatement(deleteQryString);
-        if (primaryKey instanceof String) {
-            deleteRecord.setString(1, primaryKey.toString());
-        } else {
-            deleteRecord.setInt(1, Integer.parseInt(primaryKey.toString()));
-        }
-        deleteRecord.executeUpdate();
-
+//        if (primaryKey instanceof String) {
+//            deleteRecord.setString(1, primaryKey.toString());
+//        } else {
+//            deleteRecord.setInt(1, Integer.parseInt(primaryKey.toString()));
+//        }
+        deleteRecord.setObject(1, primaryKey);
+        int result = deleteRecord.executeUpdate();
+        return result;
+        
     }
 
     @Override
@@ -157,12 +161,13 @@ public class DBMySqlStrategy implements DBStrategy {
                 "root", "admin");
         List<Map<String, Object>> rawData = db.findAllRecordsForTable("author", 0);
         System.out.println(rawData);
-        //db.deleteRecordInTable("author", "author_id", 3);
+//        int result = db.deleteRecordById("author", "author_id", 8);
+//        System.out.println(result);
         rawData = db.findAllRecordsForTable("author", 0);
 
         System.out.println(rawData);
         Object[] data = {
-            "Alice Cooper",
+            "John Green",
             "2007-01-02"
         };
         db.createNewRecordInTable("author", data);
