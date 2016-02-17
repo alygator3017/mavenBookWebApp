@@ -19,7 +19,7 @@ public interface DBStrategy {
     
     public abstract List<Map<String, Object>> findAllRecordsForTable(String tableName, int maxRecords) throws SQLException;
     
-    public abstract void deleteRecordInTable(String tableName, String columnName, Object primaryKey) throws SQLException;
+    public abstract void deleteRecordById(String tableName, String columnName, Object primaryKey) throws SQLException;
     
     public abstract void createNewRecordInTable(String tableName, Object[] recordData) throws SQLException;
 }

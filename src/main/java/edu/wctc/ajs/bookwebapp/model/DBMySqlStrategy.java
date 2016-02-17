@@ -93,18 +93,13 @@ public class DBMySqlStrategy implements DBStrategy {
      * @throws SQLException
      */
     @Override
-    public void deleteRecordInTable(String tableName, String columnName, Object primaryKey) throws SQLException {
+    public void deleteRecordById(String tableName, String columnName, Object primaryKey) throws SQLException {
         if (tableName.isEmpty() || columnName.isEmpty()) {
             throw new IllegalArgumentException();
         }
         //need to grab record by author_id but because it is generic we can't actually grab by the author_id
         PreparedStatement deleteRecord = null;
         String deleteQryString = null;
-//        if (primaryKey instanceof String) {
-//            deleteQryString = "DELETE FROM " + tableName + " WHERE " + columnName + "= '" + primaryKey + "'";
-//        }else{
-//            deleteQryString = "DELETE FROM " + tableName + " WHERE " + columnName + "= " + primaryKey + "";
-//        }
         deleteQryString = "DELETE FROM " + tableName + " WHERE " + columnName + "=?";
 
         deleteRecord = conn.prepareStatement(deleteQryString);
@@ -167,8 +162,8 @@ public class DBMySqlStrategy implements DBStrategy {
 
         System.out.println(rawData);
         Object[] data = {
-            "John Green",
-            "2000-01-02"
+            "Alice Cooper",
+            "2007-01-02"
         };
         db.createNewRecordInTable("author", data);
         db.closeConnection();

@@ -61,7 +61,7 @@ public class AuthorDao implements AuthorDaoStrategy {
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
         Object primaryKey = authorId;
         try {
-            db.deleteRecordInTable(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
+            db.deleteRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
             msg = "Deletion of authorId: " + authorId  + " successful.";
             return msg;
         } catch (SQLException sql) {
