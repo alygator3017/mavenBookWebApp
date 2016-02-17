@@ -118,13 +118,33 @@ public class DBMySqlStrategy implements DBStrategy {
 
     }
     
-    public void createNewRecordInTable(String tableName, List recordData){
+    @Override
+    public void createNewRecordInTable(String tableName, List recordData) throws SQLException{
         PreparedStatement createRecord = null;
         String createQryString = null;
-        String columnNames = null;
-        String rowData = null;
+        String columnNames = "";
+        String rowData = "";
+        String sql = "SELECT * FROM " + tableName;
+        Statement smt = conn.createStatement();
+        ResultSet rs = smt.executeQuery(sql);
+        //the result set knows information from the table, thats is called metadata
+        //metadata is information about the table.
+        ResultSetMetaData rsmd = rs.getMetaData();
+        //get the colum count from the metadata
+        int columnCount = rsmd.getColumnCount();
+        for(int i = 1; i <= columnCount; i++){
+            if(i < columnCount && i > 1){
+                columnNames = columnNames.concat(rsmd.getColumnName(i) + " , ");
+                rowData = rowData.concat("?, ");
+            }else if(i == columnCount){
+                columnNames = columnNames.concat(rsmd.getColumnName(i) + "");
+                rowData = rowData.concat("?");
+            }
+            
+        }
         
         createQryString = "INSERT INTO " + tableName + "(" + columnNames + ") VALUES(" + rowData + ")";
+        System.out.println(createQryString);
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
@@ -137,7 +157,12 @@ public class DBMySqlStrategy implements DBStrategy {
         System.out.println(rawData);
         //db.deleteRecordInTable("author", "author_id", 3);
         rawData = db.findAllRecordsForTable("author", 0);
-        db.closeConnection();
+        
         System.out.println(rawData);
+        List data = new ArrayList(Arrays.asList("Joe", "2001-02-01"));
+        db.createNewRecordInTable("author", data);
+        db.closeConnection();
+        
+        
     }
 }
