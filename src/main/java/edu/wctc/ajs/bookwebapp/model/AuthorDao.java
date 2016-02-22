@@ -60,10 +60,29 @@ public class AuthorDao implements AuthorDaoStrategy {
         Object primaryKey = authorId;
 
         int result = db.deleteRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
+        db.closeConnection();
         return result;
 
     }
 
+    @Override
+    public int createNewAuthor(String tableName, Author author) throws ClassNotFoundException, SQLException {
+        
+        
+        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        Object[] recordData = {author.getAuthorName(), "2016-2-22"};
+        int result = db.createNewRecordInTable(tableName, recordData);
+        db.closeConnection();
+        return result;
+    }
+
+    @Override
+    public int updateAuthorById(String tableName, List<Object> values, Object authorId) {
+        int result = 0;
+        
+        return result;
+    }
+    
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         AuthorDaoStrategy dao = new AuthorDao();
 
@@ -71,12 +90,18 @@ public class AuthorDao implements AuthorDaoStrategy {
 
         System.out.println(authors);
 
-        //String deleteComplete = dao.deleteAuthorById(3);
+        //int deleteComplete = dao.deleteAuthorById(10);
 
         //System.out.println(deleteComplete);
-
+        
+        Author ranAuthor = new Author();
+//        ranAuthor.setAuthorName("Henry Nobely");
+//        ranAuthor.setDateAdded(new Date());
+//        int result = dao.createNewAuthor(TABLE_NAME, ranAuthor);
+//        System.out.println(result);
         authors = dao.getAuthorList();
-
         System.out.println(authors);
     }
+
+    
 }

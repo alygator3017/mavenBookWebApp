@@ -117,6 +117,13 @@ public class DBMySqlStrategy implements DBStrategy {
         
     }
 
+    /**
+     * Make sure you open and close a connection when using this method.
+     * @param tableName
+     * @param recordData
+     * @return
+     * @throws SQLException
+     */
     @Override
     public int createNewRecordInTable(String tableName, Object[] recordData) throws SQLException {
         PreparedStatement createRecord = null;
@@ -155,6 +162,16 @@ public class DBMySqlStrategy implements DBStrategy {
         return result;
     }
     
+    /**
+     * Make sure you open and close a connection when using this method.
+     * @param tableName
+     * @param colNames
+     * @param colValues
+     * @param pkColName
+     * @param pkValue
+     * @return
+     * @throws SQLException
+     */
     @Override
     public int updateRecordById(String tableName, List<String> colNames, List<Object> colValues, String pkColName, Object pkValue) throws SQLException{
         //using the list of column names to find the current values for multiple
