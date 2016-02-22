@@ -23,9 +23,17 @@ public class AuthorService {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public String deleteAuthorById(int authorId) throws ClassNotFoundException, SQLException{
-        String deleteMsg = dao.deleteAuthorById(authorId);
-        return deleteMsg;
+    public String deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException{
+        String msg = null;
+        int result = dao.deleteAuthorById(authorId);
+                if(result == 1){
+            msg = "Deletion of authorId: " + authorId + " successful.";
+        }else if(result > 1){
+            msg = "Error: Deletion of authorID " + authorId + " failed. Too many records deleted";
+        }else{
+            msg = "Error: Deletion of authorID " + authorId + " failed.";
+        }
+        return msg;
     }
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         AuthorService srv = new AuthorService();

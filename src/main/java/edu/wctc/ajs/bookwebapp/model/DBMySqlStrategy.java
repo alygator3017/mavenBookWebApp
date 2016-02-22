@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +118,7 @@ public class DBMySqlStrategy implements DBStrategy {
     }
 
     @Override
-    public void createNewRecordInTable(String tableName, Object[] recordData) throws SQLException {
+    public int createNewRecordInTable(String tableName, Object[] recordData) throws SQLException {
         PreparedStatement createRecord = null;
         String createQryString = null;
         String columnNames = "";
@@ -150,9 +151,77 @@ public class DBMySqlStrategy implements DBStrategy {
         }
 
         
-        createRecord.executeUpdate();
+        int result = createRecord.executeUpdate();
+        return result;
+    }
+    
+    @Override
+    public int updateRecordById(String tableName, List<String> colNames, List<Object> colValues, String pkColName, Object pkValue) throws SQLException{
+        //using the list of column names to find the current values for multiple
+        // column update
+         PreparedStatement pstmt = null;
+        int recsUpdated = 0;
+
+        // do this in an excpetion handler so that we can depend on the
+        // finally clause to close the connection
+        try {
+                    pstmt = buildUpdateStatement(conn,tableName,colNames,pkColName);
+
+                    final Iterator i=colValues.iterator();
+                    int index = 1;
+                    Object obj = null;
+
+                    // set params for column values
+                    while( i.hasNext()) {
+                        obj = i.next();
+                        pstmt.setObject(index++, obj);
+                    }
+                    // and finally set param for wehere value
+                    pstmt.setObject(index, pkValue);
+                    
+                    recsUpdated = pstmt.executeUpdate();
+
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage());
+        } finally {
+                    try {
+                            pstmt.close();
+                            conn.close();
+                    } catch(SQLException e) {
+                            throw e;
+                    } // end try
+        } // end finally
+
+        return recsUpdated;
     }
 
+    	/*
+	 * Builds a java.sql.PreparedStatement for an sql update using only one where clause test
+	 * @param conn - a JDBC <code>Connection</code> object
+	 * @param tableName - a <code>String</code> representing the table name
+	 * @param colDescriptors - a <code>List</code> containing the column descriptors for
+	 * the fields that can be updated.
+	 * @param whereField - a <code>String</code> representing the field name for the
+	 * search criteria.
+	 * @return java.sql.PreparedStatement
+	 * @throws SQLException
+	 */
+	private PreparedStatement buildUpdateStatement(Connection conn_loc, String tableName,
+												   List colDescriptors, String whereField)
+	throws SQLException {
+		StringBuffer sql = new StringBuffer("UPDATE ");
+		(sql.append(tableName)).append(" SET ");
+		final Iterator i=colDescriptors.iterator();
+		while( i.hasNext() ) {
+			(sql.append( (String)i.next() )).append(" = ?, ");
+		}
+		sql = new StringBuffer( (sql.toString()).substring( 0,(sql.toString()).lastIndexOf(", ") ) );
+		((sql.append(" WHERE ")).append(whereField)).append(" = ?");
+		final String finalSQL=sql.toString();
+		return conn_loc.prepareStatement(finalSQL);
+	}
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         DBStrategy db = new DBMySqlStrategy();
 
@@ -162,16 +231,24 @@ public class DBMySqlStrategy implements DBStrategy {
         List<Map<String, Object>> rawData = db.findAllRecordsForTable("author", 0);
         System.out.println(rawData);
 //        int result = db.deleteRecordById("author", "author_id", 8);
-//        System.out.println(result);
+//        System.out.println(result);;
+//        Object[] data = {
+//            "John Green",
+//            "2007-01-02"
+//        };
+//        db.createNewRecordInTable("author", data);
+        List<String> colNames = Arrays.asList("author_name", "date_added");
+        List<Object> colValues = Arrays.asList("My Little Pony Rainbow Dash", "1993-10-31");
+        int result = db.updateRecordById("author", colNames, colValues, "author_id", 2);
+        db.closeConnection();
+        db.openConnection("com.mysql.jdbc.Driver",
+                "jdbc:mysql://localhost:3306/book",
+                "root", "admin");
         rawData = db.findAllRecordsForTable("author", 0);
 
         System.out.println(rawData);
-        Object[] data = {
-            "John Green",
-            "2007-01-02"
-        };
-        db.createNewRecordInTable("author", data);
         db.closeConnection();
+        System.out.println(result);
 
     }
 }

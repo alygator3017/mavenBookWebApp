@@ -33,7 +33,7 @@ public class MockAuthorDao implements AuthorDaoStrategy{
 //    }
 
     @Override
-    public String deleteAuthorById(int authorId) throws ClassNotFoundException, SQLException {
+    public int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

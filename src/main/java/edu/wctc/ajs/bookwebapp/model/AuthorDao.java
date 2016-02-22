@@ -55,21 +55,13 @@ public class AuthorDao implements AuthorDaoStrategy {
     }
 
     @Override
-    public String deleteAuthorById(int authorId) throws ClassNotFoundException, SQLException {
-        String msg = null;
-
+    public int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException {
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
         Object primaryKey = authorId;
-        try {
-            db.deleteRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
-            msg = "Deletion of authorId: " + authorId  + " successful.";
-            return msg;
-        } catch (SQLException sql) {
-            //fix this
-            System.out.println(sql.getMessage());
-            msg = "Error: Deletion of authorId: " + authorId + " could not be completed.";
-            return msg;
-        }
+
+        int result = db.deleteRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
+        return result;
+
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
@@ -78,13 +70,13 @@ public class AuthorDao implements AuthorDaoStrategy {
         List<Author> authors = dao.getAuthorList();
 
         System.out.println(authors);
-        
-        String deleteComplete = dao.deleteAuthorById(3);
-        
-        System.out.println(deleteComplete);
-        
+
+        //String deleteComplete = dao.deleteAuthorById(3);
+
+        //System.out.println(deleteComplete);
+
         authors = dao.getAuthorList();
-        
+
         System.out.println(authors);
     }
 }
