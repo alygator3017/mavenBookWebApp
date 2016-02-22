@@ -1,7 +1,10 @@
 package edu.wctc.ajs.bookwebapp.model;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +57,13 @@ public class AuthorDao implements AuthorDaoStrategy {
         return authors;
     }
 
+    /**
+     *
+     * @param authorId
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     @Override
     public int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException {
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
@@ -65,21 +75,41 @@ public class AuthorDao implements AuthorDaoStrategy {
 
     }
 
+    /**
+     *
+     * @param tableName
+     * @param author
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     @Override
-    public int createNewAuthor(String tableName, Author author) throws ClassNotFoundException, SQLException {
+    public int createNewAuthor(Author author) throws ClassNotFoundException, SQLException {
         
         
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
-        Object[] recordData = {author.getAuthorName(), "2016-2-22"};
-        int result = db.createNewRecordInTable(tableName, recordData);
+        DateFormat df = new SimpleDateFormat("yyyy.M.d");
+        Object[] recordData = {author.getAuthorName(), df.format(author.getDateAdded())};
+        int result = db.createNewRecordInTable(TABLE_NAME,recordData);
         db.closeConnection();
         return result;
     }
 
+    /**
+     *
+     * @param tableName
+     * @param colNamesToBeUpdated
+     * @param values
+     * @param authorId
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     @Override
-    public int updateAuthorById(String tableName, List<Object> values, Object authorId) {
-        int result = 0;
-        
+    public int updateAuthorById(List<String> colNamesToBeUpdated, List<Object> values, int authorId) throws ClassNotFoundException, SQLException  {
+        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        int result = db.updateRecordById(TABLE_NAME, colNamesToBeUpdated, values, PRIMARY_KEY_COLUMN_NAME, authorId);
+        db.closeConnection();
         return result;
     }
     
@@ -90,15 +120,21 @@ public class AuthorDao implements AuthorDaoStrategy {
 
         System.out.println(authors);
 
-        //int deleteComplete = dao.deleteAuthorById(10);
+        int deleteComplete = dao.deleteAuthorById(10);
 
-        //System.out.println(deleteComplete);
+        System.out.println(deleteComplete);
         
-        Author ranAuthor = new Author();
+//        Author ranAuthor = new Author();
 //        ranAuthor.setAuthorName("Henry Nobely");
 //        ranAuthor.setDateAdded(new Date());
-//        int result = dao.createNewAuthor(TABLE_NAME, ranAuthor);
+//        int result = dao.createNewAuthor(ranAuthor);
 //        System.out.println(result);
+        authors = dao.getAuthorList();
+        System.out.println(authors);
+        List<String> colNames = new ArrayList<>(Arrays.asList("author_id"));
+        List<Object> colValues = new ArrayList<>(Arrays.asList(4));
+        int results = dao.updateAuthorById(colNames, colValues, 2);
+        System.out.println(results);
         authors = dao.getAuthorList();
         System.out.println(authors);
     }

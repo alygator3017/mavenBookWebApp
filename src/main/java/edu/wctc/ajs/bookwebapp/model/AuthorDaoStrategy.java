@@ -13,7 +13,7 @@ public interface AuthorDaoStrategy {
     
     public abstract int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException;
     
-    public abstract int createNewAuthor(String tableName, Author author)throws ClassNotFoundException, SQLException;
+    public abstract int createNewAuthor(Author author)throws ClassNotFoundException, SQLException;
     
-    public abstract int updateAuthorById(String tableName, List<Object> values, Object authorId);
+    public abstract int updateAuthorById(List<String> colNamesToBeUpdate, List<Object> values, int authorId )  throws ClassNotFoundException, SQLException ;
 }

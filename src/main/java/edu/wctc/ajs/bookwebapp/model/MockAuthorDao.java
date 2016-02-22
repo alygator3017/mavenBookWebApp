@@ -38,12 +38,12 @@ public class MockAuthorDao implements AuthorDaoStrategy{
     }
 
     @Override
-    public int createNewAuthor(String tableName, Author author) {
+    public int createNewAuthor(Author author) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public int updateAuthorById(String tableName, List<Object> values, Object authorId) {
+    public int updateAuthorById(List<String> colNamesToBeUpdate, List<Object> values, int authorId) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
