@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,12 +9,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
 /**
  *
  * @author Alyson
  */
-public class AuthorDao implements AuthorDaoStrategy {
+@SessionScoped
+public class AuthorDao implements AuthorDaoStrategy, Serializable{
 
     private static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/book";
@@ -22,9 +26,29 @@ public class AuthorDao implements AuthorDaoStrategy {
     //table constants
     private static final String TABLE_NAME = "author";
     private static final String PRIMARY_KEY_COLUMN_NAME = "author_id";
+    private static final String AUTHOR_NAME_COL_NAME = "author_name";
+    private static final String DATE_ADDED_COL_NAME = "date_added";
     //dbstrategy object
-    private DBStrategy db = new DBMySqlStrategy();
+    //live object
+    @Inject
+    private DBStrategy db;
+    //testing object
+    //private DBStrategy db = new DBMySqlStrategy();
+    
 
+    public AuthorDao() {
+    }
+
+    public DBStrategy getDb() {
+        return db;
+    }
+
+    public void setDb(DBStrategy db) {
+        this.db = db;
+    }
+
+    
+    
     /**
      *
      * @return @throws ClassNotFoundException
@@ -89,8 +113,9 @@ public class AuthorDao implements AuthorDaoStrategy {
         
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
         DateFormat df = new SimpleDateFormat("yyyy.M.d");
-        Object[] recordData = {author.getAuthorName(), df.format(author.getDateAdded())};
-        int result = db.createNewRecordInTable(TABLE_NAME,recordData);
+        List recordData = new ArrayList(Arrays.asList(author.getAuthorName(), df.format(author.getDateAdded())));
+        List colNames = new ArrayList(Arrays.asList(AUTHOR_NAME_COL_NAME,DATE_ADDED_COL_NAME));
+        int result = db.createNewRecordInTable(TABLE_NAME,colNames,recordData);
         db.closeConnection();
         return result;
     }

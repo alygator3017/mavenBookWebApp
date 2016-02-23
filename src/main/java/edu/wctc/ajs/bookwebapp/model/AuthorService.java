@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,18 +9,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 /**
  *
  * @author Alyson
  */
-public class AuthorService {
+@SessionScoped
+public class AuthorService implements Serializable{
 //high level class in DAO
     //hardcoded currently but will change later
     @Inject
     private AuthorDaoStrategy dao;
     private static final String TABLE_NAME = "author";
+
+    public AuthorDaoStrategy getDao() {
+        return dao;
+    }
+
+    public void setDao(AuthorDaoStrategy dao) {
+        this.dao = dao;
+    }
+    
+    
     
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException{
         return dao.getAuthorList();

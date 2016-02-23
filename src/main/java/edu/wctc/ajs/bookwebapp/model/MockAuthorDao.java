@@ -1,20 +1,36 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Alternative;
+import javax.inject.Inject;
 
 /**
  *
  * @author Alyson
  */
-public class MockAuthorDao implements AuthorDaoStrategy{
-    
+@Alternative
+@SessionScoped
+public class MockAuthorDao implements AuthorDaoStrategy, Serializable{
+    @Inject
+    private DBStrategy db;
     private List<Author> authors; 
     public MockAuthorDao(){
         initTestData();
     }
+
+    public DBStrategy getDb() {
+        return db;
+    }
+
+    public void setDb(DBStrategy db) {
+        this.db = db;
+    }
+    
     @Override
     public final List<Author> getAuthorList(){
         return authors;

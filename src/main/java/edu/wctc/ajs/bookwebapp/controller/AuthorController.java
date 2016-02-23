@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,6 +27,9 @@ public class AuthorController extends HttpServlet {
     private static final String PAGE = "page";
     private static final String ERR = "data cannot be found";
 
+    @Inject
+    private AuthorService authService;
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -40,9 +44,8 @@ public class AuthorController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ClassNotFoundException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
-        AuthorService as = new AuthorService();
         List<Author> authors;
-        authors = as.getAuthorList(); 
+        authors = authService.getAuthorList(); 
         request.setAttribute("authorsList", authors);
         //depending on if on same page or different page
         String page = request.getParameter(PAGE);

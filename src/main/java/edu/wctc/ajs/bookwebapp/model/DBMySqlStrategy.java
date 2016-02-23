@@ -1,5 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
+import java.io.Serializable;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,12 +15,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.SessionScoped;
 
 /**
  *
  * @author Alyson
  */
-public class DBMySqlStrategy implements DBStrategy {
+@SessionScoped
+public class DBMySqlStrategy implements DBStrategy, Serializable {
 
     private Connection conn;
 
@@ -125,40 +128,21 @@ public class DBMySqlStrategy implements DBStrategy {
      * @throws SQLException
      */
     @Override
-    public int createNewRecordInTable(String tableName, Object[] recordData) throws SQLException {
+    public int createNewRecordInTable(String tableName, List colNames, List colData) throws SQLException {
         PreparedStatement createRecord = null;
-        String createQryString = null;
-        String columnNames = "";
-        String rowData = "";
-        String sql = "SELECT * FROM " + tableName;
-        Statement smt = conn.createStatement();
-        ResultSet rs = smt.executeQuery(sql);
-        int columnCounterForPreparedStatement = 0;
-        //the result set knows information from the table, thats is called metadata
-        //metadata is information about the table.
-        ResultSetMetaData rsmd = rs.getMetaData();
-        //get the colum count from the metadata
-        int columnCount = rsmd.getColumnCount();
-        for (int i = 1; i <= columnCount; i++) {
-            if (i < columnCount && i > 1) {
-                columnNames = columnNames.concat(rsmd.getColumnName(i) + " , ");
-                rowData = rowData.concat("?, ");
-                columnCounterForPreparedStatement++;
-            } else if (i == columnCount) {
-                columnNames = columnNames.concat(rsmd.getColumnName(i) + "");
-                rowData = rowData.concat("?");
-                columnCounterForPreparedStatement++;
-            }
-
-        }
-        createQryString = "INSERT INTO " + tableName + "(" + columnNames + ") VALUES(" + rowData + ")";
-        createRecord = conn.prepareStatement(createQryString);
-        for (int i = 0; i < columnCounterForPreparedStatement; i++) {
-            createRecord.setString((i + 1), recordData[i].toString());
-        }
-
+        int result = 0;
         
-        int result = createRecord.executeUpdate();
+        createRecord = buildInsertStatement(conn, tableName, colNames);
+        //create and iterator
+        final Iterator i = colData.iterator();
+        int index = 1;
+        while(i.hasNext()){
+            final Object o = i.hasNext();
+            index++;
+            createRecord.setObject(index, o);
+        }
+        
+        result = createRecord.executeUpdate();
         return result;
     }
     
@@ -239,6 +223,40 @@ public class DBMySqlStrategy implements DBStrategy {
 		final String finalSQL=sql.toString();
 		return conn_loc.prepareStatement(finalSQL);
 	}
+        
+            /*
+     * Builds a java.sql.PreparedStatement for an sql insert
+     * @param conn - a valid connection
+     * @param tableName - a <code>String</code> representing the table name
+     * @param colDescriptors - a <code>List</code> containing the column descriptors for
+     * the fields that can be inserted.
+     * @return java.sql.PreparedStatement
+     * @throws DataAccessException
+     */
+    private PreparedStatement buildInsertStatement(Connection conn, String tableName, List colDescriptors)
+            throws SQLException{
+        StringBuffer sql = new StringBuffer("INSERT INTO ");
+        (sql.append(tableName)).append(" (");
+        final Iterator i = colDescriptors.iterator();
+        while (i.hasNext()) {
+            (sql.append((String) i.next())).append(", ");
+        }
+        sql = new StringBuffer((sql.toString()).substring(0, (sql.toString()).lastIndexOf(", ")) + ") VALUES (");
+        for (int j = 0; j < colDescriptors.size(); j++) {
+            sql.append("?, ");
+        }
+        final String finalSQL = (sql.toString()).substring(0, (sql.toString()).lastIndexOf(", ")) + ")";
+        //System.out.println(finalSQL);
+        PreparedStatement psmt = null;
+        try {
+            psmt = conn.prepareStatement(finalSQL);
+        } catch(SQLException e) {
+            throw new SQLException(e.getMessage(),e.getCause());
+        }
+        return psmt;
+    }
+    
+    
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         DBStrategy db = new DBMySqlStrategy();
 
