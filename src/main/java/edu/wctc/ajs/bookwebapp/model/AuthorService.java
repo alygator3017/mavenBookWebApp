@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  *
@@ -16,7 +17,8 @@ import java.util.List;
 public class AuthorService {
 //high level class in DAO
     //hardcoded currently but will change later
-    private AuthorDaoStrategy dao = new AuthorDao();
+    @Inject
+    private AuthorDaoStrategy dao;
     private static final String TABLE_NAME = "author";
     
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException{
