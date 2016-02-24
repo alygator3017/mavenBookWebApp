@@ -9,20 +9,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 /**
  *
  * @author Alyson
  */
-@SessionScoped
+@Dependent
 public class AuthorDao implements AuthorDaoStrategy, Serializable{
 
-    private static final String DRIVER_CLASS = "com.mysql.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/book";
-    private static final String USER = "root";
-    private static final String PASSWORD = "admin";
+    
     //table constants
     private static final String TABLE_NAME = "author";
     private static final String PRIMARY_KEY_COLUMN_NAME = "author_id";
@@ -36,10 +33,21 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     //testing object
     private DBStrategy db = new DBMySqlStrategy();
     
-
+    private String driver;
+    private String url;
+    private String user;
+    private String password;
+    
     public AuthorDao() {
     }
 
+    @Override
+    public void initDao(String driver, String url, String user, String password) {
+        setDriver(driver);
+        setUrl(url);
+        setUser(user);
+        setPwd(password);
+    }
     public DBStrategy getDb() {
         return db;
     }
@@ -58,7 +66,7 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
      */
     @Override
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException {
-        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        db.openConnection(driver, url, user, password);
 
         List<Map<String, Object>> rawData = db.findAllRecordsForTable("author", 0);
         List<Author> authors = new ArrayList<>();
@@ -85,7 +93,7 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     
     @Override
     public Author getAuthorById(Object id) throws ClassNotFoundException, SQLException, Exception{
-        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        db.openConnection(driver, url, user, password);
          Map<String, Object> rawData = db.findRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, id);
          Author author = new Author();
          Integer authorId = new Integer(rawData.get("author_id").toString());
@@ -109,7 +117,7 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
      */
     @Override
     public int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException {
-        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        db.openConnection(driver, url, user, password);
         Object primaryKey = authorId;
 
         int result = db.deleteRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, primaryKey);
@@ -130,7 +138,7 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     public int createNewAuthor(Author author) throws ClassNotFoundException, SQLException {
         
         
-        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        db.openConnection(driver, url, user, password);
         DateFormat df = new SimpleDateFormat("yyyy.M.d");
         List recordData = new ArrayList(Arrays.asList(author.getAuthorName(), df.format(author.getDateAdded())));
         List colNames = new ArrayList(Arrays.asList(AUTHOR_NAME_COL_NAME,DATE_ADDED_COL_NAME));
@@ -152,7 +160,7 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
      */
     @Override
     public int updateAuthorById(Object currAuthorId, Object authorId, Object authorName, Object dateAdded) throws ClassNotFoundException, SQLException  {
-        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+        db.openConnection(driver, url, user, password);
         List<String> colNames = new ArrayList<>(Arrays.asList(PRIMARY_KEY_COLUMN_NAME, AUTHOR_NAME_COL_NAME, DATE_ADDED_COL_NAME));
         List<Object> colValues = new ArrayList<>(Arrays.asList(authorId, authorName, dateAdded));
         int result = db.updateRecordById(TABLE_NAME,colNames , colValues, PRIMARY_KEY_COLUMN_NAME, currAuthorId);
@@ -188,5 +196,45 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
         System.out.println(authors);
     }
 
+    @Override
+    public String getDriver() {
+        return driver;
+    }
+
+    @Override
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    @Override
+    public String getPwd() {
+        return password;
+    }
+
+    @Override
+    public void setPwd(String password) {
+        this.password = password;
+    }
+    
     
 }

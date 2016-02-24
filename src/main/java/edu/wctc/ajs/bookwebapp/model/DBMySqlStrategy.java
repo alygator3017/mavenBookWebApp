@@ -1,7 +1,6 @@
 package edu.wctc.ajs.bookwebapp.model;
 
 import java.io.Serializable;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,20 +9,18 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.SessionScoped;
 
 /**
  *
  * @author Alyson
  */
-@SessionScoped
+@Dependent
 public class DBMySqlStrategy implements DBStrategy, Serializable {
 
     private Connection conn;

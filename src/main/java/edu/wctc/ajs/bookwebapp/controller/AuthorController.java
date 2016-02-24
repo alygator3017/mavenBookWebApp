@@ -2,7 +2,6 @@ package edu.wctc.ajs.bookwebapp.controller;
 
 import edu.wctc.ajs.bookwebapp.model.Author;
 import edu.wctc.ajs.bookwebapp.model.AuthorService;
-import edu.wctc.ajs.bookwebapp.model.MockAuthorDao;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -36,6 +35,12 @@ public class AuthorController extends HttpServlet {
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
 
+    // db config init params from web.xml
+    private String driverClass;
+    private String url;
+    private String userName;
+    private String password;
+    
     @Inject
     private AuthorService authService;
 
@@ -53,6 +58,8 @@ public class AuthorController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ClassNotFoundException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
+        // use init parameters to config database connection
+        configDbConnection();
         String pageDestination = RESULTS_PAGE;
         String action = request.getParameter(ACTION);
         String errorMessage = "";
@@ -115,6 +122,10 @@ public class AuthorController extends HttpServlet {
         request.setAttribute("authorsList", authors);
     }
 
+    private void configDbConnection() { 
+        authService.getDao().initDao(driverClass, url, userName, password);   
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -166,4 +177,18 @@ public class AuthorController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+     /**
+     * Called after the constructor is called by the container. This is the
+     * correct place to do one-time initialization.
+     *
+     * @throws ServletException
+     */
+    @Override
+    public void init() throws ServletException {
+        // Get init params from web.xml
+        driverClass = getServletContext().getInitParameter("db.driver.class");
+        url = getServletContext().getInitParameter("db.url");
+        userName = getServletContext().getInitParameter("db.username");
+        password = getServletContext().getInitParameter("db.password");
+      }
 }

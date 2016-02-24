@@ -2,11 +2,6 @@ package edu.wctc.ajs.bookwebapp.model;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.enterprise.context.SessionScoped;

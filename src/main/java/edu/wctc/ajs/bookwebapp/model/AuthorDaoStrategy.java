@@ -19,7 +19,25 @@ public interface AuthorDaoStrategy {
     
     public abstract int updateAuthorById(Object currAuthorId, Object authorId, Object authorName, Object dateAdded)  throws ClassNotFoundException, SQLException ;
     
-    public DBStrategy getDb();
+    public abstract DBStrategy getDb();
     
-    public void setDb(DBStrategy db);
+    public abstract void setDb(DBStrategy db);
+    
+    public abstract void initDao(String driver, String url, String user, String password);
+    
+    public abstract String getDriver();
+    
+    public abstract void setDriver(String driver);
+    
+    public abstract String getUrl();
+
+    public abstract void setUrl(String url);
+
+    public abstract String getUser();
+
+    public abstract void setUser(String user);
+
+    public abstract String getPwd();
+
+    public abstract void setPwd(String pwd);
 }

@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.enterprise.context.SessionScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
@@ -14,15 +14,25 @@ import javax.inject.Inject;
  * @author Alyson
  */
 @Alternative
-@SessionScoped
+@Dependent
 public class MockAuthorDao implements AuthorDaoStrategy, Serializable{
     @Inject
     private DBStrategy db;
     private List<Author> authors; 
+    
+    private String driver;
+    private String url;
+    private String user;
+    private String pwd;
+    
     public MockAuthorDao(){
         initTestData();
     }
 
+    @Override
+    public void initDao(String driver, String url, String user, String password) {
+        
+    }
     public DBStrategy getDb() {
         return db;
     }
@@ -68,5 +78,35 @@ public class MockAuthorDao implements AuthorDaoStrategy, Serializable{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
 }
