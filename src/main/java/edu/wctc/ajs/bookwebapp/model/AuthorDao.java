@@ -28,12 +28,13 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     private static final String PRIMARY_KEY_COLUMN_NAME = "author_id";
     private static final String AUTHOR_NAME_COL_NAME = "author_name";
     private static final String DATE_ADDED_COL_NAME = "date_added";
+    
     //dbstrategy object
     //live object
-    @Inject
-    private DBStrategy db;
+    //@Inject
+    //private DBStrategy db;
     //testing object
-    //private DBStrategy db = new DBMySqlStrategy();
+    private DBStrategy db = new DBMySqlStrategy();
     
 
     public AuthorDao() {
@@ -50,9 +51,10 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     
     
     /**
-     *
-     * @return @throws ClassNotFoundException
-     * @throws SQLException
+     * Method opens and closes connection to retrieve full list of authors
+     * @return List of authors in database
+     * @throws ClassNotFoundException  exception
+     * @throws SQLException exception
      */
     @Override
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException {
@@ -80,13 +82,30 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
         db.closeConnection();
         return authors;
     }
+    
+    @Override
+    public Author getAuthorById(Object id) throws ClassNotFoundException, SQLException, Exception{
+        db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
+         Map<String, Object> rawData = db.findRecordById(TABLE_NAME, PRIMARY_KEY_COLUMN_NAME, id);
+         Author author = new Author();
+         Integer authorId = new Integer(rawData.get("author_id").toString());
+         author.setAuthorId(authorId);
+         String name = rawData.get("author_name") == null? "" : rawData.get("author_name").toString();
+         author.setAuthorName(name);
+         Date date = rawData.get("date_added") == null ? null : (Date)rawData.get("date_added");
+         author.setDateAdded(date);
+         db.closeConnection();
+         return author;
+         
+    }
 
     /**
-     *
-     * @param authorId
-     * @return
-     * @throws ClassNotFoundException
-     * @throws SQLException
+     * Deletes an author by specified ID returning the number of records delete.
+     * Opens and closes connection within the method.
+     * @param authorId id of the author to be deleted
+     * @return number of records deleted
+     * @throws ClassNotFoundException exception
+     * @throws SQLException exception
      */
     @Override
     public int deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException {
@@ -100,12 +119,12 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     }
 
     /**
-     *
-     * @param tableName
-     * @param author
-     * @return
-     * @throws ClassNotFoundException
-     * @throws SQLException
+     * Opens and closes connection within the method.
+     * Adds a new author to the database.
+     * @param author object to be added to database
+     * @return number of records added
+     * @throws ClassNotFoundException exception
+     * @throws SQLException exception.
      */
     @Override
     public int createNewAuthor(Author author) throws ClassNotFoundException, SQLException {
@@ -121,33 +140,36 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
     }
 
     /**
-     *
-     * @param tableName
-     * @param colNamesToBeUpdated
-     * @param values
-     * @param authorId
-     * @return
-     * @throws ClassNotFoundException
-     * @throws SQLException
+     * Open and close connection within the method.
+     * updates a current record in the database with the values specified.
+     * @param colNamesToBeUpdated names of the columns that need to be updated
+     * @param values values of the columns being updated in order. Must be in the same order
+     * as the column names specified
+     * @param authorId id of the author to be updated
+     * @return number of records updated in database.
+     * @throws ClassNotFoundException exception
+     * @throws SQLException exception
      */
     @Override
-    public int updateAuthorById(List<String> colNamesToBeUpdated, List<Object> values, int authorId) throws ClassNotFoundException, SQLException  {
+    public int updateAuthorById(Object currAuthorId, Object authorId, Object authorName, Object dateAdded) throws ClassNotFoundException, SQLException  {
         db.openConnection(DRIVER_CLASS, URL, USER, PASSWORD);
-        int result = db.updateRecordById(TABLE_NAME, colNamesToBeUpdated, values, PRIMARY_KEY_COLUMN_NAME, authorId);
+        List<String> colNames = new ArrayList<>(Arrays.asList(PRIMARY_KEY_COLUMN_NAME, AUTHOR_NAME_COL_NAME, DATE_ADDED_COL_NAME));
+        List<Object> colValues = new ArrayList<>(Arrays.asList(authorId, authorName, dateAdded));
+        int result = db.updateRecordById(TABLE_NAME,colNames , colValues, PRIMARY_KEY_COLUMN_NAME, currAuthorId);
         db.closeConnection();
         return result;
     }
     
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, Exception {
         AuthorDaoStrategy dao = new AuthorDao();
 
         List<Author> authors = dao.getAuthorList();
 
         System.out.println(authors);
 
-        int deleteComplete = dao.deleteAuthorById(10);
-
-        System.out.println(deleteComplete);
+//        int deleteComplete = dao.deleteAuthorById(10);
+//
+//        System.out.println(deleteComplete);
         
 //        Author ranAuthor = new Author();
 //        ranAuthor.setAuthorName("Henry Nobely");
@@ -156,10 +178,12 @@ public class AuthorDao implements AuthorDaoStrategy, Serializable{
 //        System.out.println(result);
         authors = dao.getAuthorList();
         System.out.println(authors);
-        List<String> colNames = new ArrayList<>(Arrays.asList("author_id"));
-        List<Object> colValues = new ArrayList<>(Arrays.asList(4));
-        int results = dao.updateAuthorById(colNames, colValues, 2);
-        System.out.println(results);
+//        List<String> colNames = new ArrayList<>(Arrays.asList("author_id"));
+//        List<Object> colValues = new ArrayList<>(Arrays.asList(4));
+//        int results = dao.updateAuthorById(colNames, colValues, 2);
+//        System.out.println(results);
+        Author author = dao.getAuthorById(1);
+        System.out.println(author);
         authors = dao.getAuthorList();
         System.out.println(authors);
     }

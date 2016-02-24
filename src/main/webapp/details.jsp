@@ -1,9 +1,8 @@
 <%-- 
-    Document   : bookDatabase
-    Created on : Feb 8, 2016, 10:26:10 AM
+    Document   : details
+    Created on : Feb 23, 2016, 9:38:16 AM
     Author     : Alyson
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -39,29 +38,43 @@
                             <li>
                                 <a href="index.html">Home</a>
                             </li>
+                            <li>
+                                <a href="AuthorController?action=list">Back</a>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
-            <div class="row">
-                <h1 class="col-lg-4">Book Database</h1>
-                <img src="imgs/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
-            </div>
-            <div class="col-lg-4">
-                <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="AuthorController?action=list" onsubmit="">
-                    <fieldset>
-                        <legend>Get Authors</legend>
-
-                        <div class='form-group'>
-                            <div class="col-lg-10 col-lg-offset-2">
-                                <input type="submit" name="submit" value="Get All Authors"/>
-                            </div>
+            <h3>Author Details</h3>
+            <form method="POST" action="AuthorController?action=editDelete" class="detailsForm">
+                <fieldset>
+                    <legend>${author.authorName}: Details</legend>
+                    <div class="form-group">
+                        <label for="authorId" class="col-lg-2 control-label">Author Id:</label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" name="authorId" id="authorId" value="${author.authorId}">
+                            <input type="hidden" id="currAuthorId" name="currAuthorId" value="${author.authorId}"/>
                         </div>
-                    </fieldset>
-                </form>
-            </div>
-           
+                    </div>
+                    <div class="form-group">
+                        <label for="authorName" class="col-lg-2 control-label">Author Name:</label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" name="authorName" id="authorName" value="${author.authorName}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="authorId" class="col-lg-2 control-label">Date Added:</label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" name="dateAdded" id="dateAdded" value="${author.dateAdded}" readonly>
+                        </div>
+                    </div>
+                    <input type="submit" value="Save Edit" name="submit" />&nbsp;
+                    <input type="submit" value="Delete" name="submit" />
+                    <input type="submit" value="Back" name="submit" />
+                </fieldset>
+            </form>
+
+
             <div class="push"></div>
         </div>
         <div class="footer">
@@ -75,3 +88,4 @@
 
     </body>
 </html>
+

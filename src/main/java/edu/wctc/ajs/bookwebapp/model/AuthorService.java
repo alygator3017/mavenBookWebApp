@@ -20,8 +20,10 @@ import javax.inject.Inject;
 public class AuthorService implements Serializable{
 //high level class in DAO
     //hardcoded currently but will change later
-    @Inject
-    private AuthorDaoStrategy dao;
+    //@Inject
+    //private AuthorDaoStrategy dao;
+    //test dao
+    private AuthorDaoStrategy dao = new AuthorDao();
     private static final String TABLE_NAME = "author";
 
     public AuthorDaoStrategy getDao() {
@@ -32,18 +34,33 @@ public class AuthorService implements Serializable{
         this.dao = dao;
     }
     
-    
-    
+    /**
+     * Connection to the DAO class to retrieve the author list.
+     * @return The list of authors in the database.
+     * @throws ClassNotFoundException exception
+     * @throws SQLException exception.
+     */
     public List<Author> getAuthorList() throws ClassNotFoundException, SQLException{
         return dao.getAuthorList();
     }
     
     /**
-     *
-     * @param authorId
+     * Connection to the dao class to retrieve a single author by their id
+     * @param authorId id of the other to be retrieved from the database.
+     * @return the author being retrieved by the id.
+     * @throws SQLException exception
+     * @throws Exception exception
+     */
+    public Author getAuthorById(Object authorId) throws SQLException, Exception{
+        return dao.getAuthorById(authorId);
+    }
+    
+    /**
+     * Connection to the dao class to delete an author from the database by their id
+     * @param authorId id of the author to be deleted from the database
      * @return author deletion confirmation
-     * @throws ClassNotFoundException
-     * @throws SQLException
+     * @throws ClassNotFoundException exception
+     * @throws SQLException exception
      */
     public String deleteAuthorById(Object authorId) throws ClassNotFoundException, SQLException{
         String msg = null;
@@ -61,7 +78,7 @@ public class AuthorService implements Serializable{
     /**
      * Creating a new author in the database. This includes both the name of the
      * author and the date. The ID is auto incremented in the table. 
-     * @param authorName
+     * @param authorName name of the author being created
      * @param date will be formatted in this method to yyyy.M.d when adding to database
      * @return a message on whether the creation was successful or not.
      * @throws ClassNotFoundException
@@ -83,9 +100,9 @@ public class AuthorService implements Serializable{
         return msg;
     }
     
-    public String updateAuthorById(List<String> colNamesToBeUpdate, List<Object> values, int authorId ) throws ClassNotFoundException, SQLException{
+    public String updateAuthorById(Object currAuthorId, Object authorId, Object authorName, Object dateAdded ) throws ClassNotFoundException, SQLException{
         String msg;
-        int result = dao.updateAuthorById(colNamesToBeUpdate, values, authorId);
+        int result = dao.updateAuthorById(currAuthorId, authorId, authorName, dateAdded);
         if(result == 1){
             msg = "Update of author: " + authorId + " was successful";
         }else if(result > 1){
@@ -96,7 +113,7 @@ public class AuthorService implements Serializable{
         return msg;
     }
     
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, Exception {
         AuthorService srv = new AuthorService();
         List<Author> authors = srv.getAuthorList();
         System.out.println(authors);
@@ -104,8 +121,10 @@ public class AuthorService implements Serializable{
         //String msg = srv.deleteAuthorById(3);
         //System.out.println(msg);
         //String msg = srv.createNewAuthor("Lizzie Bennet", new Date());
-        String msg = srv.updateAuthorById(new ArrayList(Arrays.asList("author_id")), new ArrayList(Arrays.asList("5")), 11);
+        String msg = srv.updateAuthorById(5,5,"Charlotte Bronte", new Date());
         System.out.println(msg);
+        //Author author = srv.getAuthorById(1);
+        //System.out.println(author);
         authors = srv.getAuthorList();
         System.out.println(authors);
     }

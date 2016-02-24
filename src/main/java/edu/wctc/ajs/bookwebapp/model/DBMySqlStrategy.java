@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 
 /**
@@ -41,11 +43,11 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      * Make sure you open and close a connection when using this method. Future
      * optimizations may include changing the return type to an array.
      *
-     * @param tableName
+     * @param tableName name of the table being accessed
      * @param maxRecords - limit records found to first maxRecords or if
      * maxRecords is zero (0) then no limit
-     * @return
-     * @throws java.sql.SQLException
+     * @return a list of maps containing a string as the key and an object as the value.
+     * @throws java.sql.SQLException exception
      */
     @Override
     public List<Map<String, Object>> findAllRecordsForTable(String tableName, int maxRecords) throws SQLException {
@@ -85,6 +87,41 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         return records;
     }
 
+    @Override
+    public Map<String, Object> findRecordById(String tableName, String primaryKeyColName, Object primaryKeyValue) throws Exception {
+        String sql = "SELECT * FROM " + tableName + " WHERE " + primaryKeyColName + " = ?";
+
+        PreparedStatement smt = null;
+        Map<String, Object> record = new HashMap();
+
+        try {
+            smt = conn.prepareStatement(sql);
+            smt.setObject(1, primaryKeyValue);
+            ResultSet rs = smt.executeQuery();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnCount = rsmd.getColumnCount();
+
+            if (rs.next()) {
+                for (int colNo = 1; colNo <= columnCount; colNo++) {
+                    //data for the column
+                    Object colData = rs.getObject(colNo);
+                    //name of column using the metaData
+                    String colName = rsmd.getColumnName(colNo);
+                    //add to the map
+                    record.put(colName, colData);
+                }
+            }
+        } catch (SQLException ex) {
+            //fix this later add custom exception
+            throw new Exception();
+        } finally {
+            smt.close();
+            conn.close();
+        }
+        return record;
+
+    }
+
     /**
      * Make sure you open and close a connection when using this method. Method
      * deletes a single record in a table. Decision on the key's value which has
@@ -92,10 +129,10 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      * Only set up currrently for String and Int. Returns int to show how many
      * records have been deleted.
      *
-     * @param tableName
-     * @param columnName
-     * @param primaryKey
-     * @throws SQLException
+     * @param tableName name of the table being accessed
+     * @param columnName name of the primary key column
+     * @param primaryKey value of the primary key
+     * @throws SQLException exception
      */
     @Override
     public int deleteRecordById(String tableName, String columnName, Object primaryKey) throws SQLException {
@@ -106,7 +143,6 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         PreparedStatement deleteRecord = null;
         String deleteQryString = null;
         deleteQryString = "DELETE FROM " + tableName + " WHERE " + columnName + "=?";
-        
 
         deleteRecord = conn.prepareStatement(deleteQryString);
 //        if (primaryKey instanceof String) {
@@ -117,89 +153,93 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         deleteRecord.setObject(1, primaryKey);
         int result = deleteRecord.executeUpdate();
         return result;
-        
+
     }
 
     /**
      * Make sure you open and close a connection when using this method.
-     * @param tableName
-     * @param recordData
-     * @return
-     * @throws SQLException
+     *
+     * @param tableName name of the table being accessed
+     * @param colNames name of the columns from the table to apply values to
+     * @param colData values to be added to the columns in the table. Values must match
+     * up with the column names.
+     * @return number of records created
+     * @throws SQLException exception
      */
     @Override
     public int createNewRecordInTable(String tableName, List colNames, List colData) throws SQLException {
-        PreparedStatement createRecord = null;
-        int result = 0;
-        
+        PreparedStatement createRecord;
+        int result;
+
         createRecord = buildInsertStatement(conn, tableName, colNames);
         //create and iterator
         final Iterator i = colData.iterator();
         int index = 1;
-        while(i.hasNext()){
+        while (i.hasNext()) {
             final Object o = i.hasNext();
             index++;
             createRecord.setObject(index, o);
         }
-        
+
         result = createRecord.executeUpdate();
         return result;
     }
-    
+
     /**
      * Make sure you open and close a connection when using this method.
-     * @param tableName
-     * @param colNames
-     * @param colValues
-     * @param pkColName
-     * @param pkValue
-     * @return
-     * @throws SQLException
+     *
+     * @param tableName name of the table being accessed
+     * @param colNames names of the columns being updated in the table
+     * @param colValues values of the columns being updated. Must match up in order
+     * to the col names to be updated.
+     * @param pkColName primary key column name.
+     * @param pkValue primary key value for specific record being updated.
+     * @return number of records updated
+     * @throws SQLException exception
      */
     @Override
-    public int updateRecordById(String tableName, List<String> colNames, List<Object> colValues, String pkColName, Object pkValue) throws SQLException{
+    public int updateRecordById(String tableName, List<String> colNames, List<Object> colValues, String pkColName, Object pkValue) throws SQLException {
         //using the list of column names to find the current values for multiple
         // column update
-         PreparedStatement pstmt = null;
+        PreparedStatement pstmt = null;
         int recsUpdated = 0;
 
         // do this in an excpetion handler so that we can depend on the
         // finally clause to close the connection
         try {
-                    pstmt = buildUpdateStatement(conn,tableName,colNames,pkColName);
+            pstmt = buildUpdateStatement(conn, tableName, colNames, pkColName);
 
-                    final Iterator i=colValues.iterator();
-                    int index = 1;
-                    Object obj = null;
+            final Iterator i = colValues.iterator();
+            int index = 1;
+            Object obj;
 
-                    // set params for column values
-                    while( i.hasNext()) {
-                        obj = i.next();
-                        pstmt.setObject(index++, obj);
-                    }
-                    // and finally set param for wehere value
-                    pstmt.setObject(index, pkValue);
-                    
-                    recsUpdated = pstmt.executeUpdate();
+            // set params for column values
+            while (i.hasNext()) {
+                obj = i.next();
+                pstmt.setObject(index++, obj);
+            }
+            // and finally set param for wehere value
+            pstmt.setObject(index, pkValue);
+
+            recsUpdated = pstmt.executeUpdate();
 
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Exception e) {
             throw new SQLException(e.getMessage());
         } finally {
-                    try {
-                            pstmt.close();
-                            conn.close();
-                    } catch(SQLException e) {
-                            throw e;
-                    } // end try
+            try {
+                pstmt.close();
+                conn.close();
+            } catch (SQLException e) {
+                throw e;
+            } // end try
         } // end finally
 
         return recsUpdated;
     }
 
-    	/*
-	 * Builds a java.sql.PreparedStatement for an sql update using only one where clause test
+    /** Builds a java.sql.PreparedStatement for an sql update using only one where clause test
 	 * @param conn - a JDBC <code>Connection</code> object
 	 * @param tableName - a <code>String</code> representing the table name
 	 * @param colDescriptors - a <code>List</code> containing the column descriptors for
@@ -208,24 +248,23 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
 	 * search criteria.
 	 * @return java.sql.PreparedStatement
 	 * @throws SQLException
-	 */
-	private PreparedStatement buildUpdateStatement(Connection conn_loc, String tableName,
-												   List colDescriptors, String whereField)
-	throws SQLException {
-		StringBuffer sql = new StringBuffer("UPDATE ");
-		(sql.append(tableName)).append(" SET ");
-		final Iterator i=colDescriptors.iterator();
-		while( i.hasNext() ) {
-			(sql.append( (String)i.next() )).append(" = ?, ");
-		}
-		sql = new StringBuffer( (sql.toString()).substring( 0,(sql.toString()).lastIndexOf(", ") ) );
-		((sql.append(" WHERE ")).append(whereField)).append(" = ?");
-		final String finalSQL=sql.toString();
-		return conn_loc.prepareStatement(finalSQL);
-	}
-        
-            /*
-     * Builds a java.sql.PreparedStatement for an sql insert
+     */
+    private PreparedStatement buildUpdateStatement(Connection conn_loc, String tableName,
+            List colDescriptors, String whereField)
+            throws SQLException {
+        StringBuffer sql = new StringBuffer("UPDATE ");
+        (sql.append(tableName)).append(" SET ");
+        final Iterator i = colDescriptors.iterator();
+        while (i.hasNext()) {
+            (sql.append((String) i.next())).append(" = ?, ");
+        }
+        sql = new StringBuffer((sql.toString()).substring(0, (sql.toString()).lastIndexOf(", ")));
+        ((sql.append(" WHERE ")).append(whereField)).append(" = ?");
+        final String finalSQL = sql.toString();
+        return conn_loc.prepareStatement(finalSQL);
+    }
+
+    /** Builds a java.sql.PreparedStatement for an sql insert
      * @param conn - a valid connection
      * @param tableName - a <code>String</code> representing the table name
      * @param colDescriptors - a <code>List</code> containing the column descriptors for
@@ -234,7 +273,7 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      * @throws DataAccessException
      */
     private PreparedStatement buildInsertStatement(Connection conn, String tableName, List colDescriptors)
-            throws SQLException{
+            throws SQLException {
         StringBuffer sql = new StringBuffer("INSERT INTO ");
         (sql.append(tableName)).append(" (");
         final Iterator i = colDescriptors.iterator();
@@ -250,14 +289,13 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         PreparedStatement psmt = null;
         try {
             psmt = conn.prepareStatement(finalSQL);
-        } catch(SQLException e) {
-            throw new SQLException(e.getMessage(),e.getCause());
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage(), e.getCause());
         }
         return psmt;
     }
-    
-    
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, Exception {
         DBStrategy db = new DBMySqlStrategy();
 
         db.openConnection("com.mysql.jdbc.Driver",
@@ -272,16 +310,17 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
 //            "2007-01-02"
 //        };
 //        db.createNewRecordInTable("author", data);
-        List<String> colNames = Arrays.asList("author_name", "date_added");
-        List<Object> colValues = Arrays.asList("My Little Pony Rainbow Dash", "1993-10-31");
-        int result = db.updateRecordById("author", colNames, colValues, "author_id", 2);
-        db.closeConnection();
-        db.openConnection("com.mysql.jdbc.Driver",
-                "jdbc:mysql://localhost:3306/book",
-                "root", "admin");
-        rawData = db.findAllRecordsForTable("author", 0);
-
-        System.out.println(rawData);
+//        List<String> colNames = Arrays.asList("author_name", "date_added");
+//        List<Object> colValues = Arrays.asList("My Little Pony Rainbow Dash", "1993-10-31");
+//        int result = db.updateRecordById("author", colNames, colValues, "author_id", 2);
+//        db.closeConnection();
+//        db.openConnection("com.mysql.jdbc.Driver",
+//                "jdbc:mysql://localhost:3306/book",
+//                "root", "admin");
+//        rawData = db.findAllRecordsForTable("author", 0);
+//
+//        System.out.println(rawData);
+        Map<String,Object> result = db.findRecordById("author", "author_id", "1");
         db.closeConnection();
         System.out.println(result);
 

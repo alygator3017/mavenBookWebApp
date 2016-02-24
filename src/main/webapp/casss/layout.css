@@ -1,0 +1,21 @@
+/* 
+    Created on : Feb 23, 2016, 10:42:50 AM
+    Author     : Alyson
+*/
+.submitLink {
+  background-color: transparent;
+  text-decoration: underline;
+  border: none;
+  color: black;
+  cursor: pointer;
+}
+
+submitLink:focus {
+  outline: none;
+  color:#3C545C;
+}
+
+submitLink:hover{
+    color:#3C545C;
+}
+

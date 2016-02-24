@@ -59,7 +59,12 @@ public class MockAuthorDao implements AuthorDaoStrategy, Serializable{
     }
 
     @Override
-    public int updateAuthorById(List<String> colNamesToBeUpdate, List<Object> values, int authorId) {
+    public Author getAuthorById(Object id) throws ClassNotFoundException, SQLException, Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int updateAuthorById(Object currAuthorId, Object authorId, Object authorName, Object dateAdded) throws ClassNotFoundException, SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

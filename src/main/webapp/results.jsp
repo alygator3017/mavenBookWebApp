@@ -1,6 +1,6 @@
 <%-- 
-    Document   : bookDatabase
-    Created on : Feb 8, 2016, 10:26:10 AM
+    Document   : AllAuthorList
+    Created on : Feb 8, 2016, 2:56:54 PM
     Author     : Alyson
 --%>
 
@@ -19,6 +19,8 @@
         <link href="casss/stickyfooter.css" rel="stylesheet" type="text/css"/>   
         <!--bootstrap-->
         <link href="casss/bootstrap.paper.min.css" rel="stylesheet" type="text/css"/>
+        <!--layout-->
+        <link href="casss/layout.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
         <div class="wrapper">
@@ -39,29 +41,55 @@
                             <li>
                                 <a href="index.html">Home</a>
                             </li>
+                            <li>
+                                <a href="bookDatabase.jsp">Back</a>
+                            </li>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
             <div class="row">
-                <h1 class="col-lg-4">Book Database</h1>
+                <h1 class="col-lg-5">Author Database</h1>
                 <img src="imgs/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
             </div>
-            <div class="col-lg-4">
-                <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="AuthorController?action=list" onsubmit="">
-                    <fieldset>
-                        <legend>Get Authors</legend>
 
-                        <div class='form-group'>
-                            <div class="col-lg-10 col-lg-offset-2">
-                                <input type="submit" name="submit" value="Get All Authors"/>
-                            </div>
-                        </div>
-                    </fieldset>
-                </form>
+            <div  class="col col-lg-8">
+                <div id="answer">
+                    <form method="POST" action="AuthorController?action=create">
+                        <input type="submit" value="Add New Author" name="submit"/>
+                    </form>
+
+                    <table class="table table-striped table-hover ">
+                        <thead>
+                            <tr>
+                                <th>Author ID</th>
+                                <th>Author</th>
+                                <th>Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="author" items="${authorsList}">
+                                <tr>
+                                    <td>
+                                        <c:out value="${author.authorId}" />
+                                    </td>
+                                    <td><form method="POST" action="AuthorController?action=details">
+                                            <input type="submit" class="submitLink" value="${author.authorName}" name="submit"> 
+                                            <input type="hidden" id="authorId" name="authorId" value="${author.authorId}"/>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <c:out value="${author.dateAdded}"/>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    </form>
+                </div>
             </div>
-           
+            <div class="col-lg-12 message" name="message" id="message">${msg}</div>
             <div class="push"></div>
         </div>
         <div class="footer">
@@ -75,3 +103,4 @@
 
     </body>
 </html>
+
