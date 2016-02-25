@@ -9,12 +9,14 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.context.SessionScoped;
 
 /**
  *
@@ -43,7 +45,8 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      * @param tableName name of the table being accessed
      * @param maxRecords - limit records found to first maxRecords or if
      * maxRecords is zero (0) then no limit
-     * @return a list of maps containing a string as the key and an object as the value.
+     * @return a list of maps containing a string as the key and an object as
+     * the value.
      * @throws java.sql.SQLException exception
      */
     @Override
@@ -158,27 +161,35 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      *
      * @param tableName name of the table being accessed
      * @param colNames name of the columns from the table to apply values to
-     * @param colData values to be added to the columns in the table. Values must match
-     * up with the column names.
+     * @param colData values to be added to the columns in the table. Values
+     * must match up with the column names.
      * @return number of records created
-     * @throws SQLException exception
      */
     @Override
-    public int createNewRecordInTable(String tableName, List colNames, List colData) throws SQLException {
-        PreparedStatement createRecord;
+    public int createNewRecordInTable(String tableName, List colNames, List colData) {
+        PreparedStatement createRecord = null;
         int result;
+        try {
+            createRecord = buildInsertStatement(conn, tableName, colNames);
+            int colDataSize = colData.size();
+            for (int i = 0; i < colDataSize; i++) {
+                Object obj = colData.get(i);
+                createRecord.setObject((i + 1), obj);
+            }
 
-        createRecord = buildInsertStatement(conn, tableName, colNames);
-        //create and iterator
-        final Iterator i = colData.iterator();
-        int index = 1;
-        while (i.hasNext()) {
-            final Object o = i.hasNext();
-            index++;
-            createRecord.setObject(index, o);
+            result = createRecord.executeUpdate();
+        } catch (SQLException sql) {
+            System.out.println(sql.getMessage() + " error in dbMySqlStrategy create record");
+            return result = 0;
+        } finally {
+            try {
+                createRecord.close();
+                conn.close();
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage() + " error in closing of record in dbMySqlStrategy in create record");
+            }
+
         }
-
-        result = createRecord.executeUpdate();
         return result;
     }
 
@@ -187,8 +198,8 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
      *
      * @param tableName name of the table being accessed
      * @param colNames names of the columns being updated in the table
-     * @param colValues values of the columns being updated. Must match up in order
-     * to the col names to be updated.
+     * @param colValues values of the columns being updated. Must match up in
+     * order to the col names to be updated.
      * @param pkColName primary key column name.
      * @param pkValue primary key value for specific record being updated.
      * @return number of records updated
@@ -236,15 +247,18 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         return recsUpdated;
     }
 
-    /** Builds a java.sql.PreparedStatement for an sql update using only one where clause test
-	 * @param conn - a JDBC <code>Connection</code> object
-	 * @param tableName - a <code>String</code> representing the table name
-	 * @param colDescriptors - a <code>List</code> containing the column descriptors for
-	 * the fields that can be updated.
-	 * @param whereField - a <code>String</code> representing the field name for the
-	 * search criteria.
-	 * @return java.sql.PreparedStatement
-	 * @throws SQLException
+    /**
+     * Builds a java.sql.PreparedStatement for an sql update using only one
+     * where clause test
+     *
+     * @param conn - a JDBC <code>Connection</code> object
+     * @param tableName - a <code>String</code> representing the table name
+     * @param colDescriptors - a <code>List</code> containing the column
+     * descriptors for the fields that can be updated.
+     * @param whereField - a <code>String</code> representing the field name for
+     * the search criteria.
+     * @return java.sql.PreparedStatement
+     * @throws SQLException
      */
     private PreparedStatement buildUpdateStatement(Connection conn_loc, String tableName,
             List colDescriptors, String whereField)
@@ -261,11 +275,13 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         return conn_loc.prepareStatement(finalSQL);
     }
 
-    /** Builds a java.sql.PreparedStatement for an sql insert
+    /**
+     * Builds a java.sql.PreparedStatement for an sql insert
+     *
      * @param conn - a valid connection
      * @param tableName - a <code>String</code> representing the table name
-     * @param colDescriptors - a <code>List</code> containing the column descriptors for
-     * the fields that can be inserted.
+     * @param colDescriptors - a <code>List</code> containing the column
+     * descriptors for the fields that can be inserted.
      * @return java.sql.PreparedStatement
      * @throws DataAccessException
      */
@@ -302,11 +318,14 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
         System.out.println(rawData);
 //        int result = db.deleteRecordById("author", "author_id", 8);
 //        System.out.println(result);;
-//        Object[] data = {
-//            "John Green",
-//            "2007-01-02"
-//        };
-//        db.createNewRecordInTable("author", data);
+        db.closeConnection();
+        db.openConnection("com.mysql.jdbc.Driver",
+                "jdbc:mysql://localhost:3306/book",
+                "root", "admin");
+        List data = new ArrayList(Arrays.asList("John Green",
+                "2007-01-02"));
+        List colNames = new ArrayList(Arrays.asList("author_name", "date_added"));
+        int result = db.createNewRecordInTable("author", colNames, data);
 //        List<String> colNames = Arrays.asList("author_name", "date_added");
 //        List<Object> colValues = Arrays.asList("My Little Pony Rainbow Dash", "1993-10-31");
 //        int result = db.updateRecordById("author", colNames, colValues, "author_id", 2);
@@ -314,10 +333,14 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
 //        db.openConnection("com.mysql.jdbc.Driver",
 //                "jdbc:mysql://localhost:3306/book",
 //                "root", "admin");
-//        rawData = db.findAllRecordsForTable("author", 0);
-//
-//        System.out.println(rawData);
-        Map<String,Object> result = db.findRecordById("author", "author_id", "1");
+        db.closeConnection();
+        db.openConnection("com.mysql.jdbc.Driver",
+                "jdbc:mysql://localhost:3306/book",
+                "root", "admin");
+        rawData = db.findAllRecordsForTable("author", 0);
+
+        System.out.println(rawData);
+        //Map<String, Object> result = db.findRecordById("author", "author_id", "1");
         db.closeConnection();
         System.out.println(result);
 

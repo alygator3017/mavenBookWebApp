@@ -4,6 +4,7 @@ import edu.wctc.ajs.bookwebapp.model.Author;
 import edu.wctc.ajs.bookwebapp.model.AuthorService;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,13 +35,14 @@ public class AuthorController extends HttpServlet {
     private static final String ACTION_DELETE = "Delete";
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
+    private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
 
     // db config init params from web.xml
     private String driverClass;
     private String url;
     private String userName;
     private String password;
-    
+
     @Inject
     private AuthorService authService;
 
@@ -76,7 +78,7 @@ public class AuthorController extends HttpServlet {
                 case ACTION_DETAILS:
                     String id = request.getParameter("authorId");
                     if (id == null) {
-                        System.out.println("ISSUES WITH IDS in ACTION_DETAILS case");
+                        //error because id is null
                     } else {
                         String authorId = id;
                         Author author = authService.getAuthorById(authorId);
@@ -87,18 +89,43 @@ public class AuthorController extends HttpServlet {
                 case ACTION_EDIT_DELETE:
                     String subAction = request.getParameter(SUBMIT_ACTION);
                     if (subAction.equals(ACTION_EDIT)) {
-                        
+
                         String authorId = request.getParameter("authorId");
                         String authorName = request.getParameter("authorName");
                         String dateAdded = request.getParameter("dateAdded");
                         String currDetailsAuthId = request.getParameter("currAuthorId");
                         //check for repeat id's
                         String msg = authService.updateAuthorById(currDetailsAuthId, authorId, authorName, dateAdded);
+
+                        request.setAttribute("msg", msg);
+                        this.getAuthorList(request, authService);
+                        pageDestination = RESULTS_PAGE;
+                        break;
+                    } else if (subAction.equals(ACTION_BACK)) {
+                        this.getAuthorList(request, authService);
+                        String msg = "";
+                        request.setAttribute("msg", msg);
+                        pageDestination = RESULTS_PAGE;
+                        break;
+                    } else {
+                        //assuming this is the delete button
+                        String currDetailsAuthId = request.getParameter("currAuthorId");
+                        String msg = authService.deleteAuthorById(currDetailsAuthId);
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
                         pageDestination = RESULTS_PAGE;
                         break;
                     }
+                case ACTION_CREATE:
+                    pageDestination = DETAILS_PAGE;
+                    break;
+                case ACTION_ADD_NEW_AUTHOR:
+                    String newAuthorName = request.getParameter("newAuthorName");
+                    String msg = authService.createNewAuthor(newAuthorName, new Date());
+                    request.setAttribute("msg", msg);
+                    this.getAuthorList(request, authService);
+                    pageDestination = RESULTS_PAGE;
+                    break;
 
                 default:
                     request.setAttribute("msg", ERR);
@@ -110,7 +137,7 @@ public class AuthorController extends HttpServlet {
             errorMessage = errorMessage.concat(e.getMessage());
             request.setAttribute("msg", errorMessage);
         }
-        
+
         this.getAuthorList(request, authService);
         RequestDispatcher view = getServletContext().getRequestDispatcher(pageDestination);
         view.forward(request, response);
@@ -122,10 +149,10 @@ public class AuthorController extends HttpServlet {
         request.setAttribute("authorsList", authors);
     }
 
-    private void configDbConnection() { 
-        authService.getDao().initDao(driverClass, url, userName, password);   
+    private void configDbConnection() {
+        authService.getDao().initDao(driverClass, url, userName, password);
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -177,7 +204,7 @@ public class AuthorController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-     /**
+    /**
      * Called after the constructor is called by the container. This is the
      * correct place to do one-time initialization.
      *
@@ -190,5 +217,5 @@ public class AuthorController extends HttpServlet {
         url = getServletContext().getInitParameter("db.url");
         userName = getServletContext().getInitParameter("db.username");
         password = getServletContext().getInitParameter("db.password");
-      }
+    }
 }

@@ -46,7 +46,7 @@
                 </div>
             </nav>
             <h3>Author Details</h3>
-            <form method="POST" action="AuthorController?action=editDelete" class="detailsForm">
+            <form method="POST" action="AuthorController?action=editDelete" class="detailsForm col-lg-8">
                 <fieldset>
                     <legend>${author.authorName}: Details</legend>
                     <div class="form-group">

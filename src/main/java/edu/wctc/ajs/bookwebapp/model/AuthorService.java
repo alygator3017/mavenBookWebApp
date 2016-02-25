@@ -21,6 +21,10 @@ public class AuthorService implements Serializable{
     private AuthorDaoStrategy dao = new AuthorDao();
     private static final String TABLE_NAME = "author";
 
+    public AuthorService() {
+    }
+
+    
     public AuthorDaoStrategy getDao() {
         return dao;
     }

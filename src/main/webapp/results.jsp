@@ -56,9 +56,7 @@
 
             <div  class="col col-lg-8">
                 <div id="answer">
-                    <form method="POST" action="AuthorController?action=create">
-                        <input type="submit" value="Add New Author" name="submit"/>
-                    </form>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createNewAuthorModal">Create New Author</button>
 
                     <table class="table table-striped table-hover ">
                         <thead>
@@ -90,6 +88,37 @@
                 </div>
             </div>
             <div class="col-lg-12 message" name="message" id="message">${msg}</div>
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="createNewAuthorModal" aria-labelledby="createNewAuthorModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Create New Author</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form method="POST" action="AuthorController?action=addNewAuthor" class="detailsForm">
+                                <fieldset>
+                                    <legend></legend>
+                                    <div class="form-group">
+                                        <label for="authorName" class="control-label">Author Name:</label>
+                                        <div>
+                                            <input type="text" class="form-control" name="newAuthorName" id="newAuthorName" value="">
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="submit" value="Create" name="submit" class="btn btn-primary"/>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <hr/>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+
             <div class="push"></div>
         </div>
         <div class="footer">
@@ -100,7 +129,7 @@
 
         <script src="javascript/stickyfooter.js" type="text/javascript"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>        
-
+        <script src="javascript/modal.js" type="text/javascript"></script>
     </body>
 </html>
 
