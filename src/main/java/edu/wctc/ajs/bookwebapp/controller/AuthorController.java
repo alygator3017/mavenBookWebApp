@@ -37,7 +37,7 @@ public class AuthorController extends HttpServlet {
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
     private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
-    static int recordsCreated = 0;
+    private static int recordsCreated = 0;
 
     // db config init params from web.xml
     private String driverClass;
