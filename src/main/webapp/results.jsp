@@ -49,7 +49,7 @@
                     </div>
                 </div>
             </nav>
-            <div class="row">
+            <div class="row col-lg-12">
                 <h1 class="col-lg-5">Author Database</h1>
                 <img src="imgs/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
             </div>
@@ -86,8 +86,14 @@
                     </table>
                     </form>
                 </div>
+                <div class="col-lg-12" name="recordsCreated" id="recordsCreated">Records Created in Session: ${recordsCreated}</div>
+                <div class="col-lg-12 message" name="message" id="message">${msg}</div>
             </div>
-            <div class="col-lg-12 message" name="message" id="message">${msg}</div>
+            
+            <div class="col-lg-4" style="margin-left: -10px">
+                <img src="imgs/bookcase.jpg" alt="" class="img-responsive" style="margin-top: -20%; box-shadow: 0px 0px 30px #2A7811;"/>
+            </div>
+            
 
             <div class="modal fade" tabindex="-1" role="dialog" id="createNewAuthorModal" aria-labelledby="createNewAuthorModal">
                 <div class="modal-dialog">
@@ -103,10 +109,10 @@
                                     <div class="form-group">
                                         <label for="authorName" class="control-label">Author Name:</label>
                                         <div>
-                                            <input type="text" class="form-control" name="newAuthorName" id="newAuthorName" value="">
+                                            <input type="text" class="form-control" name="newAuthorName" id="newAuthorName" value="" required>
                                         </div>
                                     </div>
-                                    
+
                                     <input type="submit" value="Create" name="submit" class="btn btn-primary"/>
                                 </fieldset>
                             </form>

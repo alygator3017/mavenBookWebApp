@@ -15,6 +15,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -36,6 +37,7 @@ public class AuthorController extends HttpServlet {
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
     private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
+    static int recordsCreated = 0;
 
     // db config init params from web.xml
     private String driverClass;
@@ -60,11 +62,14 @@ public class AuthorController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, ClassNotFoundException, SQLException {
         response.setContentType("text/html;charset=UTF-8");
+        HttpSession session = request.getSession();
         // use init parameters to config database connection
         configDbConnection();
         String pageDestination = RESULTS_PAGE;
         String action = request.getParameter(ACTION);
         String errorMessage = "";
+        String msg = "";
+        
         try {
             switch (action) {
                 case ACTION_LIST:
@@ -74,6 +79,8 @@ public class AuthorController extends HttpServlet {
                 case ACTION_BACK:
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
+                    msg = "";
+                    request.setAttribute("msg", msg);
                     break;
                 case ACTION_DETAILS:
                     String id = request.getParameter("authorId");
@@ -95,7 +102,7 @@ public class AuthorController extends HttpServlet {
                         String dateAdded = request.getParameter("dateAdded");
                         String currDetailsAuthId = request.getParameter("currAuthorId");
                         //check for repeat id's
-                        String msg = authService.updateAuthorById(currDetailsAuthId, authorId, authorName, dateAdded);
+                        msg = authService.updateAuthorById(currDetailsAuthId, authorId, authorName, dateAdded);
 
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
@@ -103,14 +110,14 @@ public class AuthorController extends HttpServlet {
                         break;
                     } else if (subAction.equals(ACTION_BACK)) {
                         this.getAuthorList(request, authService);
-                        String msg = "";
+                        msg = "";
                         request.setAttribute("msg", msg);
                         pageDestination = RESULTS_PAGE;
                         break;
                     } else {
                         //assuming this is the delete button
                         String currDetailsAuthId = request.getParameter("currAuthorId");
-                        String msg = authService.deleteAuthorById(currDetailsAuthId);
+                        msg = authService.deleteAuthorById(currDetailsAuthId);
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
                         pageDestination = RESULTS_PAGE;
@@ -121,8 +128,12 @@ public class AuthorController extends HttpServlet {
                     break;
                 case ACTION_ADD_NEW_AUTHOR:
                     String newAuthorName = request.getParameter("newAuthorName");
-                    String msg = authService.createNewAuthor(newAuthorName, new Date());
+
+                    msg = authService.createNewAuthor(newAuthorName, new Date());
                     request.setAttribute("msg", msg);
+                    recordsCreated++;
+                    String rc = "" + recordsCreated;
+                    session.setAttribute("recordsCreated", rc);
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     break;

@@ -52,14 +52,14 @@
                     <div class="form-group">
                         <label for="authorId" class="col-lg-2 control-label">Author Id:</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="authorId" id="authorId" value="${author.authorId}">
+                            <input type="text" class="form-control" name="authorId" id="authorId" value="${author.authorId}" required>
                             <input type="hidden" id="currAuthorId" name="currAuthorId" value="${author.authorId}"/>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="authorName" class="col-lg-2 control-label">Author Name:</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="authorName" id="authorName" value="${author.authorName}">
+                            <input type="text" class="form-control" name="authorName" id="authorName" value="${author.authorName}" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -70,8 +70,11 @@
                     </div>
                     <input type="submit" value="Save Edit" name="submit" />&nbsp;
                     <input type="submit" value="Delete" name="submit" />
-                    <input type="submit" value="Back" name="submit" />
+
                 </fieldset>
+            </form>
+            <form method="POST" action="AuthorController?action=Back" class="detailsForm col-lg-8">
+                <input type="submit" value="Back" name="submit" class="btn btn-primary"/>
             </form>
 
 
