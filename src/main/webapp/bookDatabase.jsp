@@ -49,7 +49,7 @@
                 <img src="imgs/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
             </div>
             <div class="col-lg-4">
-                <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="AuthorController?action=list" onsubmit="">
+                <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="<%= response.encodeURL("AuthorController?action=list")%>" onsubmit="">
                     <fieldset>
                         <legend>Get Authors</legend>
 

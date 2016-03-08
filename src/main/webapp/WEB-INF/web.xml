@@ -26,6 +26,19 @@
         <param-name>db.password</param-name>
         <param-value>admin</param-value>
     </context-param>
+<!--    <servlet>
+        <servlet-name>AuthorController</servlet-name>
+        <servlet-class>edu.wctc.ajs.bookwebapp.controller.AuthorController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthorController</servlet-name>
+        <url-pattern>/Author.do</url-pattern>
+    </servlet-mapping>-->
+    <listener>
+        <listener-class>
+            edu.wctc.ajs.bookwebapp.event.SessionListener
+        </listener-class>
+    </listener>
     <session-config>
         <session-timeout>
             30

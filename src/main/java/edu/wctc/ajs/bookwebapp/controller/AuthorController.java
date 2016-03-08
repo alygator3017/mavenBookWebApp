@@ -150,8 +150,9 @@ public class AuthorController extends HttpServlet {
         }
 
         this.getAuthorList(request, authService);
-        RequestDispatcher view = getServletContext().getRequestDispatcher(pageDestination);
+        RequestDispatcher view = getServletContext().getRequestDispatcher(response.encodeURL(pageDestination));
         view.forward(request, response);
+//        response.sendRedirect(response.encodeRedirectURL(pageDestination));
 
     }
 

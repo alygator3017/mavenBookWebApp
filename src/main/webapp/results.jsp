@@ -72,7 +72,7 @@
                                     <td>
                                         <c:out value="${author.authorId}" />
                                     </td>
-                                    <td><form method="POST" action="AuthorController?action=details">
+                                    <td><form method="POST" action="<%= response.encodeURL("AuthorController?action=details")%>">
                                             <input type="submit" class="submitLink" value="${author.authorName}" name="submit"> 
                                             <input type="hidden" id="authorId" name="authorId" value="${author.authorId}"/>
                                         </form>
@@ -103,7 +103,7 @@
                             <h4 class="modal-title">Create New Author</h4>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="AuthorController?action=addNewAuthor" class="detailsForm">
+                            <form method="POST" action="<%= response.encodeURL("AuthorController?action=addNewAuthor")%>" class="detailsForm">
                                 <fieldset>
                                     <legend></legend>
                                     <div class="form-group">
@@ -128,6 +128,11 @@
             <div class="push"></div>
         </div>
         <div class="footer">
+            <%
+                Object count = application.getAttribute("sessionOpenCount");
+                String sessionCount = (count == null) ? "1" : count.toString();
+                %>
+            <p>There are currently <%= sessionCount %> user sessions active</p>
             <br/>
             <hr/>
             <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>

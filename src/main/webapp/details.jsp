@@ -39,14 +39,14 @@
                                 <a href="index.html">Home</a>
                             </li>
                             <li>
-                                <a href="AuthorController?action=list">Back</a>
+                                <a href="<%= response.encodeURL("AuthorController?action=list")%>">Back</a>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
             <h3>Author Details</h3>
-            <form method="POST" action="AuthorController?action=editDelete" class="detailsForm col-lg-8">
+            <form method="POST" action="<%= response.encodeURL("AuthorController?action=editDelete")%>" class="detailsForm col-lg-8">
                 <fieldset>
                     <legend>${author.authorName}: Details</legend>
                     <div class="form-group">
@@ -73,7 +73,7 @@
 
                 </fieldset>
             </form>
-            <form method="POST" action="AuthorController?action=Back" class="detailsForm col-lg-8">
+            <form method="POST" action="<%= response.encodeURL("AuthorController?action=Back")%>" class="detailsForm col-lg-8">
                 <input type="submit" value="Back" name="submit" class="btn btn-primary"/>
             </form>
 
