@@ -24,31 +24,32 @@
     </head>
     <body>
         <div class="wrapper">
-            <nav class='navbar navbar-default'>
+            <!--<nav class='navbar navbar-default'>
                 <div class='container-fluid'>
-                    <div class="navbar-header">
-                        <!--header stuff-->
-
-                        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a href="index.html" class="navbar-brand" style="text-align: center">Book library</a>
-                    </div>
-                    <div class="navbar-collapse collapse" id="navbar-main">
-                        <ul class="nav navbar-nav">
-                            <li>
-                                <a href="index.html">Home</a>
-                            </li>
-                            <li>
-                                <a href="bookDatabase.jsp">Back</a>
-                            </li>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+                    <div class="navbar-header">-->
+            <!--header stuff-->
+            <!--
+                                    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                    </button>
+                                    <a href="index.html" class="navbar-brand" style="text-align: center">Book library</a>
+                                </div>
+                                <div class="navbar-collapse collapse" id="navbar-main">
+                                    <ul class="nav navbar-nav">
+                                        <li>
+                                            <a href="index.html">Home</a>
+                                        </li>
+                                        <li>
+                                            <a href="bookDatabase.jsp">Back</a>
+                                        </li>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>-->
+            <jsp:include page="header.jsp"/>
             <div class="row col-lg-12">
                 <h1 class="col-lg-5">Author Database</h1>
                 <img src="imgs/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
@@ -89,11 +90,11 @@
                 <div class="col-lg-12" name="recordsCreated" id="recordsCreated">Records Created in Session: ${recordsCreated}</div>
                 <div class="col-lg-12 message" name="message" id="message">${msg}</div>
             </div>
-            
+
             <div class="col-lg-4" style="margin-left: -10px">
                 <img src="imgs/bookcase.jpg" alt="" class="img-responsive" style="margin-top: -20%; box-shadow: 0px 0px 30px #2A7811;"/>
             </div>
-            
+
 
             <div class="modal fade" tabindex="-1" role="dialog" id="createNewAuthorModal" aria-labelledby="createNewAuthorModal">
                 <div class="modal-dialog">
@@ -131,8 +132,8 @@
             <%
                 Object count = application.getAttribute("sessionOpenCount");
                 String sessionCount = (count == null) ? "1" : count.toString();
-                %>
-            <p>There are currently <%= sessionCount %> user sessions active</p>
+            %>
+            <p>There are currently <%= sessionCount%> user sessions active</p>
             <br/>
             <hr/>
             <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
