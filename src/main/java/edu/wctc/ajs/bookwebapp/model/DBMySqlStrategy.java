@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.Dependent;
+import javax.sql.DataSource;
 
 /**
  *
@@ -31,6 +32,22 @@ public class DBMySqlStrategy implements DBStrategy, Serializable {
     public void openConnection(String driverClass, String url, String userName, String password) throws ClassNotFoundException, SQLException {
         Class.forName(driverClass);
         conn = DriverManager.getConnection(url, userName, password);
+    }
+    
+        /**
+     * Open a connection using a connection pool configured on server.
+     *
+     * @param ds - a reference to a connection pool via a JNDI name, producing
+     * this object. Typically done in a servlet using InitalContext object.
+     * @throws java.lang.Exception - if ds cannot be established
+     */
+    @Override
+    public final void openConnection(DataSource ds) throws Exception {
+        try {
+            conn = ds.getConnection();
+        } catch (SQLException ex) {
+            throw new Exception(ex.getMessage(),ex.getCause());
+        }
     }
 
     @Override

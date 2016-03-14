@@ -4,6 +4,7 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
 
 /**
  *
@@ -16,6 +17,7 @@ public interface DBStrategy {
             throws ClassNotFoundException, SQLException;
 
     public abstract void closeConnection() throws SQLException;
+    public abstract void openConnection(DataSource ds) throws Exception;
     
     public abstract List<Map<String, Object>> findAllRecordsForTable(String tableName, int maxRecords) throws SQLException;
     

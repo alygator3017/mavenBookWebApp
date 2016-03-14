@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 
 /**
  *
@@ -44,6 +48,7 @@ public class AuthorController extends HttpServlet {
     private String url;
     private String userName;
     private String password;
+    private String dbJndiName;
 
     @Inject
     private AuthorService authService;
@@ -64,13 +69,14 @@ public class AuthorController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
         // use init parameters to config database connection
-        configDbConnection();
+        
         String pageDestination = RESULTS_PAGE;
         String action = request.getParameter(ACTION);
         String errorMessage = "";
         String msg = "";
         
         try {
+            configDbConnection();
             switch (action) {
                 case ACTION_LIST:
                     this.getAuthorList(request, authService);
@@ -161,8 +167,16 @@ public class AuthorController extends HttpServlet {
         request.setAttribute("authorsList", authors);
     }
 
-    private void configDbConnection() {
-        authService.getDao().initDao(driverClass, url, userName, password);
+    private void configDbConnection() throws NamingException, Exception {
+        if(dbJndiName == null){
+        authService.getDao().initDao(driverClass, url, userName, password);    
+        }else{
+            Context ctx = new InitialContext();
+            DataSource ds = (DataSource)
+                    ctx.lookup(dbJndiName);
+            authService.getDao().initDao(ds);
+        }
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -225,9 +239,10 @@ public class AuthorController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         // Get init params from web.xml
-        driverClass = getServletContext().getInitParameter("db.driver.class");
-        url = getServletContext().getInitParameter("db.url");
-        userName = getServletContext().getInitParameter("db.username");
-        password = getServletContext().getInitParameter("db.password");
+//        driverClass = getServletContext().getInitParameter("db.driver.class");
+//        url = getServletContext().getInitParameter("db.url");
+//        userName = getServletContext().getInitParameter("db.username");
+//        password = getServletContext().getInitParameter("db.password");
+        dbJndiName = getServletContext().getInitParameter("db.jndi.name");
     }
 }

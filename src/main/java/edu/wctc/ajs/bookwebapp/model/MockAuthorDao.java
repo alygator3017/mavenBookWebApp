@@ -8,6 +8,7 @@ import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
+import javax.sql.DataSource;
 
 /**
  *
@@ -108,5 +109,10 @@ public class MockAuthorDao implements AuthorDaoStrategy, Serializable{
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    @Override
+    public void initDao(DataSource ds) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
