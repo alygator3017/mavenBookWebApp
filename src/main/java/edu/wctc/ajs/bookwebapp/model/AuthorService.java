@@ -15,10 +15,10 @@ import javax.inject.Inject;
 public class AuthorService implements Serializable{
 //high level class in DAO
     //hardcoded currently but will change later
-    //@Inject
-    //private AuthorDaoStrategy dao;
-    //test dao
-    private AuthorDaoStrategy dao = new AuthorDao();
+    @Inject
+    private AuthorDaoStrategy dao;
+//    //test dao
+//    private AuthorDaoStrategy dao = new AuthorDao();
     private static final String TABLE_NAME = "author";
 
     public AuthorService() {
