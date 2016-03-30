@@ -1,7 +1,7 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
+import edu.wctc.ajs.bookwebapp.ejb.AuthorFacade;
 import edu.wctc.ajs.bookwebapp.model.Author;
-import edu.wctc.ajs.bookwebapp.model.AuthorService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -51,7 +51,7 @@ public class AuthorController extends HttpServlet {
     private String dbJndiName;
 
     @Inject
-    private AuthorService authService;
+    private AuthorFacade authService;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -69,14 +69,14 @@ public class AuthorController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
         // use init parameters to config database connection
-        
+
         String pageDestination = RESULTS_PAGE;
         String action = request.getParameter(ACTION);
         String errorMessage = "";
         String msg = "";
-        
+
         try {
-            configDbConnection();
+//            configDbConnection();
             switch (action) {
                 case ACTION_LIST:
                     this.getAuthorList(request, authService);
@@ -93,8 +93,8 @@ public class AuthorController extends HttpServlet {
                     if (id == null) {
                         //error because id is null
                     } else {
-                        String authorId = id;
-                        Author author = authService.getAuthorById(authorId);
+                        int authorId = new Integer(id);
+                        Author author = authService.find(authorId);
                         request.setAttribute("author", author);
                     }
                     pageDestination = DETAILS_PAGE;
@@ -106,10 +106,13 @@ public class AuthorController extends HttpServlet {
                         String authorId = request.getParameter("authorId");
                         String authorName = request.getParameter("authorName");
                         String dateAdded = request.getParameter("dateAdded");
-                        String currDetailsAuthId = request.getParameter("currAuthorId");
                         //check for repeat id's
-                        msg = authService.updateAuthorById(currDetailsAuthId, authorId, authorName, dateAdded);
-
+                        try {
+                            authService.updateAuthor(authorId, authorName, dateAdded);
+                            msg = "edit update complete";
+                        } catch (Exception ex) {
+                            msg = ex.getMessage();
+                        }
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
                         pageDestination = RESULTS_PAGE;
@@ -122,8 +125,13 @@ public class AuthorController extends HttpServlet {
                         break;
                     } else {
                         //assuming this is the delete button
-                        String currDetailsAuthId = request.getParameter("currAuthorId");
-                        msg = authService.deleteAuthorById(currDetailsAuthId);
+                        String authId = request.getParameter("authorId");
+                        try{
+                            authService.deleteAuthorById(authId);
+                            msg = "Deletion of auth ID: " + authId + " is complete";
+                        }catch(Exception ex){
+                            msg = ex.getMessage();
+                        }
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
                         pageDestination = RESULTS_PAGE;
@@ -134,8 +142,15 @@ public class AuthorController extends HttpServlet {
                     break;
                 case ACTION_ADD_NEW_AUTHOR:
                     String newAuthorName = request.getParameter("newAuthorName");
-
-                    msg = authService.createNewAuthor(newAuthorName, new Date());
+                    try{
+                        Author newAuth = new Author();
+                        newAuth.setAuthorName(newAuthorName);
+                        newAuth.setDateAdded(new Date());
+                        authService.create(newAuth);
+                        msg = "Creation of Author: " + newAuth + " completed";
+                    }catch(Exception ex){
+                        msg = ex.getMessage();
+                    }
                     request.setAttribute("msg", msg);
                     recordsCreated++;
                     String rc = "" + recordsCreated;
@@ -162,22 +177,21 @@ public class AuthorController extends HttpServlet {
 
     }
 
-    private void getAuthorList(HttpServletRequest request, AuthorService as) throws ClassNotFoundException, SQLException {
-        List<Author> authors = as.getAuthorList();
+    private void getAuthorList(HttpServletRequest request, AuthorFacade as) throws ClassNotFoundException, SQLException {
+        List<Author> authors = as.findAll();
         request.setAttribute("authorsList", authors);
     }
-
-    private void configDbConnection() throws NamingException, Exception {
-        if(dbJndiName == null){
-        authService.getDao().initDao(driverClass, url, userName, password);    
-        }else{
-            Context ctx = new InitialContext();
-            DataSource ds = (DataSource)
-                    ctx.lookup(dbJndiName);
-            authService.getDao().initDao(ds);
-        }
-        
-    }
+//
+//    private void configDbConnection() throws NamingException, Exception {
+//        if (dbJndiName == null) {
+//            authService.getDao().initDao(driverClass, url, userName, password);
+//        } else {
+//            Context ctx = new InitialContext();
+//            DataSource ds = (DataSource) ctx.lookup(dbJndiName);
+//            authService.getDao().initDao(ds);
+//        }
+//
+//    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

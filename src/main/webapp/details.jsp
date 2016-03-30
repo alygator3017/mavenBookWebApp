@@ -52,8 +52,7 @@
                     <div class="form-group">
                         <label for="authorId" class="col-lg-2 control-label">Author Id:</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="authorId" id="authorId" value="${author.authorId}" required>
-                            <input type="hidden" id="currAuthorId" name="currAuthorId" value="${author.authorId}"/>
+                            <input type="text" class="form-control" name="authorId" id="authorId" value="${author.authorId}" readonly>
                         </div>
                     </div>
                     <div class="form-group">
