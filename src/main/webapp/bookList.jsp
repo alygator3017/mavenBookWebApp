@@ -50,7 +50,7 @@
                                         <c:out value="${book.bookId}" />
                                     </td>
                                     <td><form method="POST" action="<%= response.encodeURL("BookController?action=details")%>">
-                                            <input type="submit" class="submitLink" value="${book.bookTitle}" name="submit"> 
+                                            <input type="submit" class="submitLink" value="${book.title}" name="submit"> 
                                             <input type="hidden" id="bookId" name="bookId" value="${book.bookId}"/>
                                         </form>
                                     </td>
@@ -100,12 +100,27 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label for="isbn" class="control-label">ISBN:</label>
+                                        <div>
+                                            <input type="text" class="form-control" name="isbn" id="isbn" value="" required>
+                                        </div>
+                                    <div class="form-group">
                                         <label for="author" class="control-label">Author:</label>
                                         <div>
-                                            <select id="authorDropDown" name="author">
-                                                <c:forEach var="author" items="${authors}" varStatus="rowCount">                                       
-                                                    <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
-                                                </c:forEach>
+                                            <select id="authorDropDown" name="authorId">
+                                                <c:choose>
+                                                    <c:when test="${not empty book.authorId}">
+                                                        <option value="">None</option>
+                                                        <c:forEach var="author" items="${authors}">                                       
+                                                            <option value="${author.authorId}" <c:if test="${book.authorId.authorId == author.authorId}">selected</c:if>>${author.authorName}</option>
+                                                        </c:forEach>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:forEach var="author" items="${authors}" varStatus="rowCount">                                       
+                                                            <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
+                                                        </c:forEach>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </select>
                                         </div>
                                     </div>

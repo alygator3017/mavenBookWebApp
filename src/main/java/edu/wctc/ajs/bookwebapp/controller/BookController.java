@@ -90,6 +90,7 @@ public class BookController extends HttpServlet {
                     request.setAttribute("msg", msg);
                     break;
                 case ACTION_DETAILS:
+                    this.getAuthorList(request, authService);
                     String id = request.getParameter("bookId");
                     if (id == null) {
                         //error because id is null
@@ -105,12 +106,12 @@ public class BookController extends HttpServlet {
                     if (subAction.equals(ACTION_EDIT)) {
 
                         String bookId = request.getParameter("bookId");
-                        String bookTitle = request.getParameter("bookTitle");
+                        String bookTitle = request.getParameter("title");
                         String isbn = request.getParameter("isbn");
                         String authorId = request.getParameter("authorId");
                         //check for repeat id's
                         try {
-                            book = bookService.find(bookId);
+                            book = bookService.find(new Integer(bookId));
                             book.setTitle(bookTitle);
                             book.setIsbn(isbn);
                             Author author = null;
@@ -206,7 +207,7 @@ public class BookController extends HttpServlet {
 
     private void getAuthorList(HttpServletRequest request, AbstractFacade<Author> as) throws ClassNotFoundException, SQLException {
         List<Author> authors = as.findAll();
-        request.setAttribute("booksList", authors);
+        request.setAttribute("authors", authors);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
