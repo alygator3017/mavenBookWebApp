@@ -1,17 +1,14 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
-import edu.wctc.ajs.bookwebapp.ejb.AuthorFacade;
+import edu.wctc.ajs.bookwebapp.ejb.AbstractFacade;
 import edu.wctc.ajs.bookwebapp.model.Author;
+import edu.wctc.ajs.bookwebapp.model.Book;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,17 +16,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
 
 /**
  *
  * @author Alyson
  */
-@WebServlet(name = "AuthorController", urlPatterns = {"/AuthorController"})
-public class AuthorController extends HttpServlet {
+@WebServlet(name = "BookController", urlPatterns = {"/BookController"})
+public class BookController extends HttpServlet {
 
-    private static final String RESULTS_PAGE = "/authorList.jsp";
-    private static final String DETAILS_PAGE = "/authorDetails.jsp";
+    private static final String RESULTS_PAGE = "/bookList.jsp";
+    private static final String DETAILS_PAGE = "/bookDetails.jsp";
     private static final String ERR = "data cannot be found";
     private static final String ACTION = "action";
     private static final String SUBMIT_ACTION = "submit";
@@ -40,7 +36,7 @@ public class AuthorController extends HttpServlet {
     private static final String ACTION_DELETE = "Delete";
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
-    private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
+    private static final String ACTION_ADD_NEW_BOOK = "addNewBook";
     private static int recordsCreated = 0;
 
     // db config init params from web.xml
@@ -51,7 +47,9 @@ public class AuthorController extends HttpServlet {
     private String dbJndiName;
 
     @Inject
-    private AuthorFacade authService;
+    private AbstractFacade<Book> bookService;
+    @Inject
+    private AbstractFacade<Author> authService;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -74,28 +72,31 @@ public class AuthorController extends HttpServlet {
         String action = request.getParameter(ACTION);
         String errorMessage = "";
         String msg = "";
+        Book book = null;
 
         try {
 //            configDbConnection();
             switch (action) {
                 case ACTION_LIST:
+                    this.getBookList(request, bookService);
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     break;
                 case ACTION_BACK:
+                    this.getBookList(request, bookService);
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     msg = "";
                     request.setAttribute("msg", msg);
                     break;
                 case ACTION_DETAILS:
-                    String id = request.getParameter("authorId");
+                    String id = request.getParameter("bookId");
                     if (id == null) {
                         //error because id is null
                     } else {
-                        int authorId = new Integer(id);
-                        Author author = authService.find(authorId);
-                        request.setAttribute("author", author);
+                        int bookId = new Integer(id);
+                        book = bookService.find(bookId);
+                        request.setAttribute("book", book);
                     }
                     pageDestination = DETAILS_PAGE;
                     break;
@@ -103,95 +104,110 @@ public class AuthorController extends HttpServlet {
                     String subAction = request.getParameter(SUBMIT_ACTION);
                     if (subAction.equals(ACTION_EDIT)) {
 
+                        String bookId = request.getParameter("bookId");
+                        String bookTitle = request.getParameter("bookTitle");
+                        String isbn = request.getParameter("isbn");
                         String authorId = request.getParameter("authorId");
-                        String authorName = request.getParameter("authorName");
-                        String dateAdded = request.getParameter("dateAdded");
                         //check for repeat id's
                         try {
-                            authService.updateAuthor(authorId, authorName, dateAdded);
+                            book = bookService.find(bookId);
+                            book.setTitle(bookTitle);
+                            book.setIsbn(isbn);
+                            Author author = null;
+                            if(authorId != null){
+                                author = authService.find(new Integer(authorId));
+                                book.setAuthorId(author);
+                            }
+                            bookService.edit(book);
                             msg = "edit update complete";
                         } catch (Exception ex) {
                             msg = ex.getMessage();
                         }
                         request.setAttribute("msg", msg);
+                        this.getBookList(request, bookService);
                         this.getAuthorList(request, authService);
                         pageDestination = RESULTS_PAGE;
                         break;
                     } else if (subAction.equals(ACTION_BACK)) {
-                        this.getAuthorList(request, authService);
+                        this.getBookList(request, bookService);
                         msg = "";
                         request.setAttribute("msg", msg);
                         pageDestination = RESULTS_PAGE;
                         break;
                     } else {
                         //assuming this is the delete button
-                        String authId = request.getParameter("authorId");
-                        try{
-                            authService.deleteAuthorById(authId);
-                            msg = "Deletion of auth ID: " + authId + " is complete";
-                        }catch(Exception ex){
+                        String bookId = request.getParameter("bookId");
+                        try {
+                            book = bookService.find(new Integer(bookId));
+                            bookService.remove(book);
+                            msg = "Deletion of auth ID: " + bookId + " is complete";
+                        } catch (Exception ex) {
                             msg = ex.getMessage();
                         }
                         request.setAttribute("msg", msg);
-                        this.getAuthorList(request, authService);
+                        this.getBookList(request, bookService);
                         pageDestination = RESULTS_PAGE;
                         break;
                     }
                 case ACTION_CREATE:
                     pageDestination = DETAILS_PAGE;
                     break;
-                case ACTION_ADD_NEW_AUTHOR:
-                    String newAuthorName = request.getParameter("newAuthorName");
-                    try{
-                        Author newAuth = new Author();
-                        newAuth.setAuthorName(newAuthorName);
-                        newAuth.setDateAdded(new Date());
-                        authService.create(newAuth);
-                        msg = "Creation of Author: " + newAuth + " completed";
-                    }catch(Exception ex){
+                case ACTION_ADD_NEW_BOOK:
+                    String newBookTitle = request.getParameter("newBookName");
+                    String isbn = request.getParameter("isbn");
+                    String authorId = request.getParameter("authorId");
+                    try {
+                        Book newBook = new Book();
+                        newBook.setTitle(newBookTitle);
+                        newBook.setIsbn(isbn);
+                        Author author;
+                        if(authorId != null){
+                            author = authService.find(new Integer(authorId));
+                            book.setAuthorId(author);
+                        }
+                        bookService.create(newBook);
+                        msg = "Creation of Author: " + newBook + " completed";
+                    } catch (Exception ex) {
                         msg = ex.getMessage();
                     }
                     request.setAttribute("msg", msg);
                     recordsCreated++;
                     String rc = "" + recordsCreated;
                     session.setAttribute("recordsCreated", rc);
+                    this.getBookList(request, bookService);
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     break;
 
                 default:
                     request.setAttribute("msg", ERR);
+                    this.getAuthorList(request, authService);
+                    this.getBookList(request, bookService);
                     pageDestination = RESULTS_PAGE;
                     break;
             }
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | SQLException | NumberFormatException e) {
             //request.setAttribute("errorMsg", ERR + " " + e.getCause().getMessage());
             errorMessage = errorMessage.concat(e.getMessage());
             request.setAttribute("msg", errorMessage);
         }
 
-        this.getAuthorList(request, authService);
+        this.getBookList(request, bookService);
         RequestDispatcher view = getServletContext().getRequestDispatcher(response.encodeURL(pageDestination));
         view.forward(request, response);
 //        response.sendRedirect(response.encodeRedirectURL(pageDestination));
 
     }
 
-    private void getAuthorList(HttpServletRequest request, AuthorFacade as) throws ClassNotFoundException, SQLException {
-        List<Author> authors = as.findAll();
-        request.setAttribute("authorsList", authors);
+    private void getBookList(HttpServletRequest request, AbstractFacade<Book> bs) throws ClassNotFoundException, SQLException {
+        List<Book> book = bs.findAll();
+        request.setAttribute("booksList", book);
     }
-//
-//    private void configDbConnection() throws NamingException, Exception {
-//        if (dbJndiName == null) {
-//            authService.getDao().initDao(driverClass, url, userName, password);
-//        } else {
-//            Context ctx = new InitialContext();
-//            DataSource ds = (DataSource) ctx.lookup(dbJndiName);
-//            authService.getDao().initDao(ds);
-//        }
-//
-//    }
+
+    private void getAuthorList(HttpServletRequest request, AbstractFacade<Author> as) throws ClassNotFoundException, SQLException {
+        List<Author> authors = as.findAll();
+        request.setAttribute("booksList", authors);
+    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -208,9 +224,9 @@ public class AuthorController extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(AuthorController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BookController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(AuthorController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BookController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -228,9 +244,9 @@ public class AuthorController extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(AuthorController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BookController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(AuthorController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BookController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -244,19 +260,4 @@ public class AuthorController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    /**
-     * Called after the constructor is called by the container. This is the
-     * correct place to do one-time initialization.
-     *
-     * @throws ServletException
-     */
-    @Override
-    public void init() throws ServletException {
-        // Get init params from web.xml
-//        driverClass = getServletContext().getInitParameter("db.driver.class");
-//        url = getServletContext().getInitParameter("db.url");
-//        userName = getServletContext().getInitParameter("db.username");
-//        password = getServletContext().getInitParameter("db.password");
-        dbJndiName = getServletContext().getInitParameter("db.jndi.name");
-    }
 }

@@ -51,11 +51,22 @@
             <div class="col-lg-4">
                 <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="<%= response.encodeURL("AuthorController?action=list")%>" onsubmit="">
                     <fieldset>
-                        <legend>Get Authors</legend>
 
                         <div class='form-group'>
                             <div class="col-lg-10 col-lg-offset-2">
                                 <input type="submit" name="submit" value="Get All Authors"/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+                    <div class="col-lg-4">
+                <form name="allBooks" id="allBooks" class="forms form-horizontal" method="POST" action="<%= response.encodeURL("BookController?action=list")%>" onsubmit="">
+                    <fieldset>
+
+                        <div class='form-group'>
+                            <div class="col-lg-10 col-lg-offset-2">
+                                <input type="submit" name="submit" value="Get All Books"/>
                             </div>
                         </div>
                     </fieldset>
