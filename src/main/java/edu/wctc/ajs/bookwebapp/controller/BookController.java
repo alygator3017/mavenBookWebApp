@@ -155,7 +155,7 @@ public class BookController extends HttpServlet {
                 case ACTION_ADD_NEW_BOOK:
                     String newBookTitle = request.getParameter("newBookName");
                     String isbn = request.getParameter("isbn");
-                    String authorId = request.getParameter("authorId");
+                    String authorId = request.getParameter("author");
                     try {
                         Book newBook = new Book();
                         newBook.setTitle(newBookTitle);
