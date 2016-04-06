@@ -9,7 +9,7 @@
     </appender>
 
     <!-- child level logging for application -->
-    <logger name="edu.wctc.web.demo.bookwebapp" level="DEBUG" />
+    <logger name="edu.wctc.ajs.bookwebapp" level="DEBUG" />
     <logger name="org.springframework" level="DEBUG" />
 
     <!-- root level logging (children can override) -->

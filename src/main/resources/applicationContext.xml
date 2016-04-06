@@ -26,12 +26,12 @@
 ">
     
     <!-- Scans within the base package of the application for Spring annotations to configure as beans -->
-    <context:component-scan base-package="edu.wctc.web.demo.bookwebapp">
-        <context:exclude-filter type="regex" expression="edu\.wctc\.web\.demo\.bookwebapp\.repository.*" />
+    <context:component-scan base-package="edu.wctc.ajs.bookwebapp">
+        <context:exclude-filter type="regex" expression="edu\.wctc\.ajs\.bookwebapp\.repository.*" />
     </context:component-scan>
     <context:annotation-config/>
     
-    <jpa:repositories base-package="edu.wctc.web.demo.bookwebapp.repository" />
+    <jpa:repositories base-package="edu.wctc.ajs.bookwebapp.repository" />
      
     <!-- Server managed connection pool accessed via JNDI -->
     <jee:jndi-lookup id="dataSource" jndi-name="jdbc/book"/>
@@ -40,7 +40,7 @@
     <bean id="entityManagerFactory"
           class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="persistenceUnitName" value="book_PU"/>
-        <property name="packagesToScan" value="edu.wctc.web.demo.bookwebapp.entity"/>
+        <property name="packagesToScan" value="edu.wctc.ajs.bookwebapp.entity"/>
         <property name="dataSource" ref="dataSource" />
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">

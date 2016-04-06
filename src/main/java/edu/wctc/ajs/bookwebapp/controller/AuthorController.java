@@ -1,10 +1,11 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
-import edu.wctc.ajs.bookwebapp.ejb.AuthorFacade;
 import edu.wctc.ajs.bookwebapp.entity.Author;
+import edu.wctc.ajs.bookwebapp.service.AuthorService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,6 +14,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -20,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  *
@@ -51,7 +55,7 @@ public class AuthorController extends HttpServlet {
     private String dbJndiName;
 
     @Inject
-    private AuthorFacade authService;
+    private AuthorService authService;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -93,8 +97,13 @@ public class AuthorController extends HttpServlet {
                     if (id == null) {
                         //error because id is null
                     } else {
-                        int authorId = new Integer(id);
-                        Author author = authService.find(authorId);
+                        //// BIG CHANGE DUE TO SPRING JPA DUE TO LAZY LOADING OF BOOKS //////
+                        Author author = authService.findByIdAndFetchBooksEagerly(id);
+                        if (author == null) {
+                            author = authService.findById(id);
+                            author.setBookSet(new LinkedHashSet<>());
+                        }
+                        ////////////////////////////////////////
                         request.setAttribute("author", author);
                     }
                     pageDestination = DETAILS_PAGE;
@@ -108,7 +117,16 @@ public class AuthorController extends HttpServlet {
                         String dateAdded = request.getParameter("dateAdded");
                         //check for repeat id's
                         try {
-                            authService.updateAuthor(authorId, authorName, dateAdded);
+                            //// BIG CHANGE DUE TO SPRING JPA DUE TO LAZY LOADING OF BOOKS //////
+                            Author author = authService.findByIdAndFetchBooksEagerly(authorId);
+                            if (author == null) {
+                                author = authService.findById(authorId);
+                                author.setBookSet(new LinkedHashSet<>());
+                            }
+                            ////////////////////////////////////////
+                            author.setAuthorName(authorName);
+                            author.setDateAdded(new Date(dateAdded));
+                            authService.edit(author);
                             msg = "edit update complete";
                         } catch (Exception ex) {
                             msg = ex.getMessage();
@@ -126,10 +144,17 @@ public class AuthorController extends HttpServlet {
                     } else {
                         //assuming this is the delete button
                         String authId = request.getParameter("authorId");
-                        try{
-                            authService.deleteAuthorById(authId);
+                        try {
+                            //// BIG CHANGE DUE TO SPRING JPA DUE TO LAZY LOADING OF BOOKS //////
+                            Author author = authService.findByIdAndFetchBooksEagerly(authId);
+                            if (author == null) {
+                                author = authService.findById(authId);
+                                author.setBookSet(new LinkedHashSet<>());
+                            }
+                            ////////////////////////////////////////
+                            authService.remove(author);
                             msg = "Deletion of auth ID: " + authId + " is complete";
-                        }catch(Exception ex){
+                        } catch (Exception ex) {
                             msg = ex.getMessage();
                         }
                         request.setAttribute("msg", msg);
@@ -142,13 +167,13 @@ public class AuthorController extends HttpServlet {
                     break;
                 case ACTION_ADD_NEW_AUTHOR:
                     String newAuthorName = request.getParameter("newAuthorName");
-                    try{
-                        Author newAuth = new Author();
+                    try {
+                        Author newAuth = new Author(0);
                         newAuth.setAuthorName(newAuthorName);
                         newAuth.setDateAdded(new Date());
-                        authService.create(newAuth);
+                        authService.edit(newAuth);
                         msg = "Creation of Author: " + newAuth + " completed";
-                    }catch(Exception ex){
+                    } catch (Exception ex) {
                         msg = ex.getMessage();
                     }
                     request.setAttribute("msg", msg);
@@ -177,7 +202,7 @@ public class AuthorController extends HttpServlet {
 
     }
 
-    private void getAuthorList(HttpServletRequest request, AuthorFacade as) throws ClassNotFoundException, SQLException {
+    private void getAuthorList(HttpServletRequest request, AuthorService as) throws ClassNotFoundException, SQLException {
         List<Author> authors = as.findAll();
         request.setAttribute("authorsList", authors);
     }
@@ -250,13 +275,28 @@ public class AuthorController extends HttpServlet {
      *
      * @throws ServletException
      */
+//    @Override
+//    public void init() throws ServletException {
+//        // Get init params from web.xml
+////        driverClass = getServletContext().getInitParameter("db.driver.class");
+////        url = getServletContext().getInitParameter("db.url");
+////        userName = getServletContext().getInitParameter("db.username");
+////        password = getServletContext().getInitParameter("db.password");
+//        dbJndiName = getServletContext().getInitParameter("db.jndi.name");
+//    }
+    /**
+     * Called after the constructor is called by the container. This is the
+     * correct place to do one-time initialization.
+     *
+     * @throws ServletException
+     */
     @Override
     public void init() throws ServletException {
-        // Get init params from web.xml
-//        driverClass = getServletContext().getInitParameter("db.driver.class");
-//        url = getServletContext().getInitParameter("db.url");
-//        userName = getServletContext().getInitParameter("db.username");
-//        password = getServletContext().getInitParameter("db.password");
-        dbJndiName = getServletContext().getInitParameter("db.jndi.name");
+        // Ask Spring for object to inject
+        ServletContext sctx = getServletContext();
+        WebApplicationContext ctx
+                = WebApplicationContextUtils.getWebApplicationContext(sctx);
+        authService = (AuthorService) ctx.getBean("authorService");
+
     }
 }
