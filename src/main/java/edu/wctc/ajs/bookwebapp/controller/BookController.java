@@ -1,8 +1,9 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
-import edu.wctc.ajs.bookwebapp.ejb.AbstractFacade;
 import edu.wctc.ajs.bookwebapp.entity.Author;
 import edu.wctc.ajs.bookwebapp.entity.Book;
+import edu.wctc.ajs.bookwebapp.service.AuthorService;
+import edu.wctc.ajs.bookwebapp.service.BookService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -47,9 +48,9 @@ public class BookController extends HttpServlet {
     private String dbJndiName;
 
     @Inject
-    private AbstractFacade<Book> bookService;
+    private BookService bookService;
     @Inject
-    private AbstractFacade<Author> authService;
+    private AuthorService authService;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -95,8 +96,7 @@ public class BookController extends HttpServlet {
                     if (id == null) {
                         //error because id is null
                     } else {
-                        int bookId = new Integer(id);
-                        book = bookService.find(bookId);
+                        book = bookService.findById(id);
                         request.setAttribute("book", book);
                     }
                     pageDestination = DETAILS_PAGE;
@@ -111,12 +111,12 @@ public class BookController extends HttpServlet {
                         String authorId = request.getParameter("authorId");
                         //check for repeat id's
                         try {
-                            book = bookService.find(new Integer(bookId));
+                            book = bookService.findById(bookId);
                             book.setTitle(bookTitle);
                             book.setIsbn(isbn);
                             Author author = null;
                             if(authorId != null){
-                                author = authService.find(new Integer(authorId));
+                                author = authService.findById(authorId);
                                 book.setAuthorId(author);
                             }
                             bookService.edit(book);
@@ -139,7 +139,7 @@ public class BookController extends HttpServlet {
                         //assuming this is the delete button
                         String bookId = request.getParameter("bookId");
                         try {
-                            book = bookService.find(new Integer(bookId));
+                            book = bookService.findById(bookId);
                             bookService.remove(book);
                             msg = "Deletion of auth ID: " + bookId + " is complete";
                         } catch (Exception ex) {
@@ -158,15 +158,15 @@ public class BookController extends HttpServlet {
                     String isbn = request.getParameter("isbn");
                     String authorId = request.getParameter("author");
                     try {
-                        Book newBook = new Book();
+                        Book newBook = new Book(0);
                         newBook.setTitle(newBookTitle);
                         newBook.setIsbn(isbn);
-                        Author author;
+                        Author author = null;
                         if(authorId != null){
-                            author = authService.find(new Integer(authorId));
+                            author = authService.findById(authorId);
                             book.setAuthorId(author);
                         }
-                        bookService.create(newBook);
+                        bookService.edit(newBook);
                         msg = "Creation of Author: " + newBook + " completed";
                     } catch (Exception ex) {
                         msg = ex.getMessage();
@@ -200,12 +200,12 @@ public class BookController extends HttpServlet {
 
     }
 
-    private void getBookList(HttpServletRequest request, AbstractFacade<Book> bs) throws ClassNotFoundException, SQLException {
+    private void getBookList(HttpServletRequest request, BookService bs) throws ClassNotFoundException, SQLException {
         List<Book> book = bs.findAll();
         request.setAttribute("booksList", book);
     }
 
-    private void getAuthorList(HttpServletRequest request, AbstractFacade<Author> as) throws ClassNotFoundException, SQLException {
+    private void getAuthorList(HttpServletRequest request, AuthorService as) throws ClassNotFoundException, SQLException {
         List<Author> authors = as.findAll();
         request.setAttribute("authors", authors);
     }
