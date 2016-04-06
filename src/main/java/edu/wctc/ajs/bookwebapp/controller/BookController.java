@@ -1,8 +1,8 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
 import edu.wctc.ajs.bookwebapp.ejb.AbstractFacade;
-import edu.wctc.ajs.bookwebapp.model.Author;
-import edu.wctc.ajs.bookwebapp.model.Book;
+import edu.wctc.ajs.bookwebapp.entity.Author;
+import edu.wctc.ajs.bookwebapp.entity.Book;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;

@@ -1,7 +1,7 @@
 package edu.wctc.ajs.bookwebapp.controller;
 
 import edu.wctc.ajs.bookwebapp.ejb.AuthorFacade;
-import edu.wctc.ajs.bookwebapp.model.Author;
+import edu.wctc.ajs.bookwebapp.entity.Author;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
