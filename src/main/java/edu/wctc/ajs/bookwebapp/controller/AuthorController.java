@@ -4,6 +4,8 @@ import edu.wctc.ajs.bookwebapp.entity.Author;
 import edu.wctc.ajs.bookwebapp.service.AuthorService;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,7 +56,7 @@ public class AuthorController extends HttpServlet {
     private String password;
     private String dbJndiName;
 
-    @Inject
+    
     private AuthorService authService;
 
     /**
@@ -125,11 +127,15 @@ public class AuthorController extends HttpServlet {
                             }
                             ////////////////////////////////////////
                             author.setAuthorName(authorName);
-                            author.setDateAdded(new Date(dateAdded));
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                            author.setDateAdded(df.parse(dateAdded));
                             authService.edit(author);
                             msg = "edit update complete";
                         } catch (Exception ex) {
                             msg = ex.getMessage();
+                            request.setAttribute("msg", msg);
+                            this.getAuthorList(request, authService);
+                            pageDestination = RESULTS_PAGE;
                         }
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);

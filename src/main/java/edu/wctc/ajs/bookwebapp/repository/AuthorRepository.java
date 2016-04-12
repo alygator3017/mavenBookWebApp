@@ -18,4 +18,6 @@ public interface AuthorRepository extends JpaRepository<Author, Integer>, Serial
 //    
     @Query("SELECT a.authorName FROM Author a")
     public Object[] findAllWithNameOnly();
+    
+   
 }

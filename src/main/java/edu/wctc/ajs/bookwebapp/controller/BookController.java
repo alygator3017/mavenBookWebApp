@@ -11,12 +11,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  *
@@ -47,9 +50,9 @@ public class BookController extends HttpServlet {
     private String password;
     private String dbJndiName;
 
-    @Inject
+    
     private BookService bookService;
-    @Inject
+  
     private AuthorService authService;
 
     /**
@@ -201,8 +204,8 @@ public class BookController extends HttpServlet {
     }
 
     private void getBookList(HttpServletRequest request, BookService bs) throws ClassNotFoundException, SQLException {
-        List<Book> book = bs.findAll();
-        request.setAttribute("booksList", book);
+        List<Book> books = bs.findAll();
+        request.setAttribute("booksList", books);
     }
 
     private void getAuthorList(HttpServletRequest request, AuthorService as) throws ClassNotFoundException, SQLException {
@@ -251,6 +254,21 @@ public class BookController extends HttpServlet {
         }
     }
 
+        /**
+     * Called after the constructor is called by the container. This is the
+     * correct place to do one-time initialization.
+     *
+     * @throws ServletException
+     */
+    @Override
+    public void init() throws ServletException {
+        // Ask Spring for object to inject
+        ServletContext sctx = getServletContext();
+        WebApplicationContext ctx
+                = WebApplicationContextUtils.getWebApplicationContext(sctx);
+        authService = (AuthorService) ctx.getBean("authorService");
+        bookService = (BookService) ctx.getBean("bookService");
+    }
     /**
      * Returns a short description of the servlet.
      *
