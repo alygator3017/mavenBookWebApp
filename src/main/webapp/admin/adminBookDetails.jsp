@@ -1,9 +1,8 @@
 <%-- 
-    Document   : bookDetails
-    Created on : Apr 4, 2016, 1:00:51 PM
+    Document   : adminBookDetails
+    Created on : Apr 20, 2016, 1:55:18 PM
     Author     : Alyson
 --%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -13,13 +12,14 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <c:set var="context" value="${pageContext.request.contextPath}" /> 
         <title>Book Database</title>
         <!--js needed at top for hidden field-->
         <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
         <!--sticky footer -->
-        <link href="css/stickyfooter.css" rel="stylesheet" type="text/css"/>   
+        <link href="${context}/css/stickyfooter.css" rel="stylesheet" type="text/css"/>   
         <!--bootstrap-->
-        <link href="css/bootstrap.paper.min.css" rel="stylesheet" type="text/css"/>
+        <link href="${context}/css/bootstrap.paper.min.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
         <div class="wrapper">
@@ -41,14 +41,14 @@
                                 <a href="index.html">Home</a>
                             </li>
                             <li>
-                                <a href="<%= response.encodeURL("BookController?action=list")%>">Back</a>
+                                <a href="<%= response.encodeURL(this.getServletContext().getContextPath() + "/BookController?action=list")%>">Back</a>
                             </li>
                         </ul>
                     </div>
                 </div>
             </nav>
             <h3>Book Details</h3>
-            <form method="POST" action="<%= response.encodeURL("BookController?action=editDelete")%>" class="detailsForm col-lg-8">
+            <form method="POST" action="<%= response.encodeURL(this.getServletContext().getContextPath() + "/BookController?action=editDelete")%>" class="detailsForm col-lg-8">
                 <fieldset>
                     <legend>${book.title}: Details</legend>
                     <div class="form-group">
@@ -60,20 +60,18 @@
                     <div class="form-group">
                         <label for="title" class="col-lg-2 control-label">Title:</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="title" id="title" value="${book.title}" readonly>
+                            <input type="text" class="form-control" name="title" id="title" value="${book.title}" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="isbn" class="col-lg-2 control-label">ISBN:</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="isbn" id="isbn" value="${book.isbn}" readonly>
+                            <input type="text" class="form-control" name="isbn" id="isbn" value="${book.isbn}" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="author" class="col-lg-2 control-label">Author</label>
                         <div class="col-lg-10">
-                            <input type="text" class="form-control" name="author" id="author" items="${authors}" value="${book.authorId.authorName}" readonly>
-                          <!--  <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
                             <select id="authorDropDown" name="authorId">
                                 <c:choose>
                                     <c:when test="${not empty book.authorId}">
@@ -88,12 +86,14 @@
                                         </c:forEach>
                                     </c:otherwise>
                                 </c:choose>
-                            </select>-->
+                            </select>
                         </div>
                     </div>
+                        <input type="submit" value="Save Edit" name="submit" />&nbsp;
+                        <input type="submit" value="Delete" name="submit" />
                 </fieldset>
             </form>
-            <form method="POST" action="<%= response.encodeURL("BookController?action=Back")%>" class="detailsForm col-lg-8">
+            <form method="POST" action="<%= response.encodeURL(this.getServletContext().getContextPath() + "/BookController?action=adminBack")%>" class="detailsForm col-lg-8">
                 <input type="submit" value="Back" name="submit" class="btn btn-primary"/>
             </form>
 
@@ -106,7 +106,7 @@
             <div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
         </div>
 
-        <script src="js/stickyfooter.js" type="text/javascript"></script>
+        <script src="${context}/js/stickyfooter.js" type="text/javascript"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>        
 
     </body>

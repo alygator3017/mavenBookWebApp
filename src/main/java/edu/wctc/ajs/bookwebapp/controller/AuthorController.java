@@ -35,17 +35,20 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class AuthorController extends HttpServlet {
 
     private static final String RESULTS_PAGE = "/authorList.jsp";
+    private static final String RESULTS_ADMIN_PAGE = "/adminAuthorList.jsp";
     private static final String DETAILS_PAGE = "/authorDetails.jsp";
     private static final String ERR = "data cannot be found";
     private static final String ACTION = "action";
     private static final String SUBMIT_ACTION = "submit";
     private static final String ACTION_LIST = "list";
+    private static final String ACTION_ADMIN_LIST = "adminList";
     private static final String ACTION_DETAILS = "details";
     private static final String ACTION_EDIT_DELETE = "editDelete";
     private static final String ACTION_CREATE = "create";
     private static final String ACTION_DELETE = "Delete";
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
+    private static final String ACTION_ADMIN_BACK = "Back To Author List";
     private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
     private static int recordsCreated = 0;
 
@@ -56,7 +59,6 @@ public class AuthorController extends HttpServlet {
     private String password;
     private String dbJndiName;
 
-    
     private AuthorService authService;
 
     /**
@@ -88,9 +90,19 @@ public class AuthorController extends HttpServlet {
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     break;
+                case ACTION_ADMIN_LIST:
+                    this.getAuthorList(request, authService);
+                    pageDestination = RESULTS_ADMIN_PAGE;
+                    break;
                 case ACTION_BACK:
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
+                    msg = "";
+                    request.setAttribute("msg", msg);
+                    break;
+                case ACTION_ADMIN_BACK:
+                    this.getAuthorList(request, authService);
+                    pageDestination = RESULTS_ADMIN_PAGE;
                     msg = "";
                     request.setAttribute("msg", msg);
                     break;

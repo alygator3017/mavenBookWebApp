@@ -29,17 +29,22 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class BookController extends HttpServlet {
 
     private static final String RESULTS_PAGE = "/bookList.jsp";
+    private static final String RESULTS_ADMIN_PAGE = "/admin/adminBookList.jsp";
     private static final String DETAILS_PAGE = "/bookDetails.jsp";
+    private static final String DETAILS_ADMIN_PAGE = "/admin/adminBookDetails.jsp";
     private static final String ERR = "data cannot be found";
     private static final String ACTION = "action";
     private static final String SUBMIT_ACTION = "submit";
     private static final String ACTION_LIST = "list";
+    private static final String ACTION_ADMIN_LIST = "adminList";
     private static final String ACTION_DETAILS = "details";
+    private static final String ACTION_ADMIN_DETAILS = "adminDetails";
     private static final String ACTION_EDIT_DELETE = "editDelete";
     private static final String ACTION_CREATE = "create";
     private static final String ACTION_DELETE = "Delete";
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
+    private static final String ACTION_ADMIN_BACK = "adminBack";
     private static final String ACTION_ADD_NEW_BOOK = "addNewBook";
     private static int recordsCreated = 0;
 
@@ -50,9 +55,8 @@ public class BookController extends HttpServlet {
     private String password;
     private String dbJndiName;
 
-    
     private BookService bookService;
-  
+
     private AuthorService authService;
 
     /**
@@ -86,10 +90,22 @@ public class BookController extends HttpServlet {
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
                     break;
+                case ACTION_ADMIN_LIST:
+                    this.getBookList(request, bookService);
+                    this.getAuthorList(request, authService);
+                    pageDestination = RESULTS_ADMIN_PAGE;
+                    break;
                 case ACTION_BACK:
                     this.getBookList(request, bookService);
                     this.getAuthorList(request, authService);
                     pageDestination = RESULTS_PAGE;
+                    msg = "";
+                    request.setAttribute("msg", msg);
+                    break;
+                case ACTION_ADMIN_BACK:
+                    this.getBookList(request, bookService);
+                    this.getAuthorList(request, authService);
+                    pageDestination = RESULTS_ADMIN_PAGE;
                     msg = "";
                     request.setAttribute("msg", msg);
                     break;
@@ -103,6 +119,17 @@ public class BookController extends HttpServlet {
                         request.setAttribute("book", book);
                     }
                     pageDestination = DETAILS_PAGE;
+                    break;
+                case ACTION_ADMIN_DETAILS:
+                    this.getAuthorList(request, authService);
+                    id = request.getParameter("bookId");
+                    if (id == null) {
+                        //error because id is null
+                    } else {
+                        book = bookService.findById(id);
+                        request.setAttribute("book", book);
+                    }
+                    pageDestination = DETAILS_ADMIN_PAGE;
                     break;
                 case ACTION_EDIT_DELETE:
                     String subAction = request.getParameter(SUBMIT_ACTION);
@@ -118,7 +145,7 @@ public class BookController extends HttpServlet {
                             book.setTitle(bookTitle);
                             book.setIsbn(isbn);
                             Author author = null;
-                            if(authorId != null){
+                            if (authorId != null) {
                                 author = authService.findById(authorId);
                                 book.setAuthorId(author);
                             }
@@ -130,13 +157,13 @@ public class BookController extends HttpServlet {
                         request.setAttribute("msg", msg);
                         this.getBookList(request, bookService);
                         this.getAuthorList(request, authService);
-                        pageDestination = RESULTS_PAGE;
+                        pageDestination = RESULTS_ADMIN_PAGE;
                         break;
                     } else if (subAction.equals(ACTION_BACK)) {
                         this.getBookList(request, bookService);
                         msg = "";
                         request.setAttribute("msg", msg);
-                        pageDestination = RESULTS_PAGE;
+                        pageDestination = RESULTS_ADMIN_PAGE;
                         break;
                     } else {
                         //assuming this is the delete button
@@ -150,24 +177,24 @@ public class BookController extends HttpServlet {
                         }
                         request.setAttribute("msg", msg);
                         this.getBookList(request, bookService);
-                        pageDestination = RESULTS_PAGE;
+                        pageDestination = RESULTS_ADMIN_PAGE;
                         break;
                     }
                 case ACTION_CREATE:
-                    pageDestination = DETAILS_PAGE;
+                    pageDestination = DETAILS_ADMIN_PAGE;
                     break;
                 case ACTION_ADD_NEW_BOOK:
                     String newBookTitle = request.getParameter("newBookName");
                     String isbn = request.getParameter("isbn");
-                    String authorId = request.getParameter("author");
+                    String authorId = request.getParameter("authorId");
                     try {
                         Book newBook = new Book(0);
                         newBook.setTitle(newBookTitle);
                         newBook.setIsbn(isbn);
                         Author author = null;
-                        if(authorId != null){
+                        if (authorId != null) {
                             author = authService.findById(authorId);
-                            book.setAuthorId(author);
+                            newBook.setAuthorId(author);
                         }
                         bookService.edit(newBook);
                         msg = "Creation of Author: " + newBook + " completed";
@@ -180,7 +207,7 @@ public class BookController extends HttpServlet {
                     session.setAttribute("recordsCreated", rc);
                     this.getBookList(request, bookService);
                     this.getAuthorList(request, authService);
-                    pageDestination = RESULTS_PAGE;
+                    pageDestination = RESULTS_ADMIN_PAGE;
                     break;
 
                 default:
@@ -254,7 +281,7 @@ public class BookController extends HttpServlet {
         }
     }
 
-        /**
+    /**
      * Called after the constructor is called by the container. This is the
      * correct place to do one-time initialization.
      *
@@ -269,6 +296,7 @@ public class BookController extends HttpServlet {
         authService = (AuthorService) ctx.getBean("authorService");
         bookService = (BookService) ctx.getBean("bookService");
     }
+
     /**
      * Returns a short description of the servlet.
      *
