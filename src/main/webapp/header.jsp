@@ -3,6 +3,7 @@
     Created on : Mar 9, 2016, 4:58:11 PM
     Author     : Alyson
 --%>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <c:set var="context" value="${pageContext.request.contextPath}" /> 
 <nav class='navbar navbar-default'>
     <div class='container-fluid'>
@@ -14,18 +15,18 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="${context}/index.html" class="navbar-brand" style="text-align: center">Book library</a>
+            <a href="index.html" class="navbar-brand" style="text-align: center">Book library</a>
         </div>
         <div class="navbar-collapse collapse" id="navbar-main">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="${context}/index.html">Home</a>
+                    <a href="index.html">Home</a>
                 </li>
                 <li>
-                    <a href="${context}/bookDatabase.jsp">Back</a>
+                    <a href="bookDatabase.jsp">Back</a>
                 </li>
                 <li>
-                    <a href='${context}/login.jsp'>Log In</a>
+                    <a href='login.jsp'>Log In</a>
                 </li>
                 <li>
 

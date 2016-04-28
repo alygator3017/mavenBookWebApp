@@ -14,6 +14,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Book Database</title>
+        <c:set var="context" value="${pageContext.request.contextPath}" /> 
         <!--js needed at top for hidden field-->
         <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
         <!--sticky footer -->
@@ -42,6 +43,12 @@
                             </li>
                             <li>
                                 <a href="<%= response.encodeURL("BookController?action=list")%>">Back</a>
+                            </li>
+                            <li>
+                                <a href ="#"> Logged in as: <sec:authentication property="principal.username"></sec:authentication> </a>
+                                </li>
+                                <li>
+                                    <a href='<%= this.getServletContext().getContextPath() + "/j_spring_security_logout"%>'>Log Me Out</a>
                             </li>
                         </ul>
                     </div>
@@ -75,20 +82,20 @@
                             <input type="text" class="form-control" name="author" id="author" items="${authors}" value="${book.authorId.authorName}" readonly>
                           <!--  <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
                             <select id="authorDropDown" name="authorId">
-                                <c:choose>
-                                    <c:when test="${not empty book.authorId}">
-                                        <option value="">None</option>
-                                        <c:forEach var="author" items="${authors}">                                       
-                                            <option value="${author.authorId}" <c:if test="${book.authorId.authorId == author.authorId}">selected</c:if>>${author.authorName}</option>
-                                        </c:forEach>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <c:forEach var="author" items="${authors}" varStatus="rowCount">                                       
-                                            <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
-                                        </c:forEach>
-                                    </c:otherwise>
-                                </c:choose>
-                            </select>-->
+                            <c:choose>
+                                <c:when test="${not empty book.authorId}">
+                                    <option value="">None</option>
+                                    <c:forEach var="author" items="${authors}">                                       
+                                        <option value="${author.authorId}" <c:if test="${book.authorId.authorId == author.authorId}">selected</c:if>>${author.authorName}</option>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="author" items="${authors}" varStatus="rowCount">                                       
+                                        <option value="${author.authorId}" <c:if test="${rowCount.count == 1}">selected</c:if>>${author.authorName}</option>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </select>-->
                         </div>
                     </div>
                 </fieldset>

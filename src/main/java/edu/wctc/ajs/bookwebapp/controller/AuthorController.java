@@ -35,20 +35,22 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class AuthorController extends HttpServlet {
 
     private static final String RESULTS_PAGE = "/authorList.jsp";
-    private static final String RESULTS_ADMIN_PAGE = "/adminAuthorList.jsp";
+    private static final String RESULTS_ADMIN_PAGE = "/admin/adminAuthorList.jsp";
     private static final String DETAILS_PAGE = "/authorDetails.jsp";
+    private static final String DETAILS_ADMIN_PAGE = "/admin/adminAuthorDetails.jsp";
     private static final String ERR = "data cannot be found";
     private static final String ACTION = "action";
     private static final String SUBMIT_ACTION = "submit";
     private static final String ACTION_LIST = "list";
     private static final String ACTION_ADMIN_LIST = "adminList";
     private static final String ACTION_DETAILS = "details";
+    private static final String ACTION_ADMIN_DETAILS = "adminDetails";
     private static final String ACTION_EDIT_DELETE = "editDelete";
     private static final String ACTION_CREATE = "create";
     private static final String ACTION_DELETE = "Delete";
     private static final String ACTION_EDIT = "Save Edit";
     private static final String ACTION_BACK = "Back";
-    private static final String ACTION_ADMIN_BACK = "Back To Author List";
+    private static final String ACTION_ADMIN_BACK = "adminBack";
     private static final String ACTION_ADD_NEW_AUTHOR = "addNewAuthor";
     private static int recordsCreated = 0;
 
@@ -122,6 +124,22 @@ public class AuthorController extends HttpServlet {
                     }
                     pageDestination = DETAILS_PAGE;
                     break;
+                case ACTION_ADMIN_DETAILS:
+                    id = request.getParameter("authorId");
+                    if (id == null) {
+                        //error because id is null
+                    } else {
+                        //// BIG CHANGE DUE TO SPRING JPA DUE TO LAZY LOADING OF BOOKS //////
+                        Author author = authService.findByIdAndFetchBooksEagerly(id);
+                        if (author == null) {
+                            author = authService.findById(id);
+                            author.setBookSet(new LinkedHashSet<>());
+                        }
+                        ////////////////////////////////////////
+                        request.setAttribute("author", author);
+                    }
+                    pageDestination = DETAILS_ADMIN_PAGE;
+                    break;
                 case ACTION_EDIT_DELETE:
                     String subAction = request.getParameter(SUBMIT_ACTION);
                     if (subAction.equals(ACTION_EDIT)) {
@@ -147,11 +165,11 @@ public class AuthorController extends HttpServlet {
                             msg = ex.getMessage();
                             request.setAttribute("msg", msg);
                             this.getAuthorList(request, authService);
-                            pageDestination = RESULTS_PAGE;
+                            pageDestination = RESULTS_ADMIN_PAGE;
                         }
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
-                        pageDestination = RESULTS_PAGE;
+                        pageDestination = RESULTS_ADMIN_PAGE;
                         break;
                     } else if (subAction.equals(ACTION_BACK)) {
                         this.getAuthorList(request, authService);
@@ -177,11 +195,11 @@ public class AuthorController extends HttpServlet {
                         }
                         request.setAttribute("msg", msg);
                         this.getAuthorList(request, authService);
-                        pageDestination = RESULTS_PAGE;
+                        pageDestination = RESULTS_ADMIN_PAGE;
                         break;
                     }
                 case ACTION_CREATE:
-                    pageDestination = DETAILS_PAGE;
+                    pageDestination = RESULTS_ADMIN_PAGE;
                     break;
                 case ACTION_ADD_NEW_AUTHOR:
                     String newAuthorName = request.getParameter("newAuthorName");
@@ -199,7 +217,7 @@ public class AuthorController extends HttpServlet {
                     String rc = "" + recordsCreated;
                     session.setAttribute("recordsCreated", rc);
                     this.getAuthorList(request, authService);
-                    pageDestination = RESULTS_PAGE;
+                    pageDestination = RESULTS_ADMIN_PAGE;
                     break;
 
                 default:

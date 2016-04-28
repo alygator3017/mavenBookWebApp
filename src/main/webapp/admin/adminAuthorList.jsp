@@ -13,6 +13,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <c:set var="context" value="${pageContext.request.contextPath}" /> 
         <title>Book Database</title>
         <!--js needed at top for hidden field-->
         <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
@@ -49,8 +50,9 @@
                                         <td>
                                             <c:out value="${author.authorId}" />
                                         </td>
-                                        <td><form method="POST" action="<%= response.encodeURL("AuthorController?action=adminDetails")%>">
-                                                <input type="submit" class="submitLink" value="${author.authorName}" name="submit"> 
+                                        <td><form method="POST" action="<%= response.encodeURL(this.getServletContext().getContextPath() +"/AuthorController?action=adminDetails")%>">
+                                                <!--THIS IS THE BUTTON THAT HAS AN ISSUE-->
+                                                <input type="submit" class="submitLink" value="${author.authorName}" name="submit"/> 
                                                 <input type="hidden" id="authorId" name="authorId" value="${author.authorId}"/>
                                             </form>
                                         </td>
@@ -63,8 +65,8 @@
                         </table>
                         </form>
                     </div>
-                    <div class="col-lg-12" name="recordsCreated" id="recordsCreated">Records Created in Session: ${recordsCreated}</div>
-                    <div class="col-lg-12 message" name="message" id="message">${msg}</div>
+                    <div class="row col-md-12" name="recordsCreated" id="recordsCreated">Records Created in Session: ${recordsCreated}</div>
+                    <div class="row col-md-12 message" name="message" id="message">${msg}</div>
                 </div>
 
                 <div class="col-md-4" style="margin-left: -10px">

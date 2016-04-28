@@ -3,7 +3,7 @@
     Created on : Apr 20, 2016, 5:19:03 PM
     Author     : Alyson
 --%>
-
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <c:set var="context" value="${pageContext.request.contextPath}" /> 
 <nav class='navbar navbar-default'>
     <div class='container-fluid'>

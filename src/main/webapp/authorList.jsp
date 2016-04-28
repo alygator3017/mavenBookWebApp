@@ -33,6 +33,9 @@
                 <h1 class="col-lg-5">Author Database</h1>
                 <img src="images/books8.png" alt="" class="img-responsive col-lg-2" style="padding-top: 1%;max-width: 100px; max-height: 100px;"/>
             </div>
+            <sec:authorize access="hasAnyRole('ROLE_MGR')">
+                <h1>REGULAR USER SHOULD NOT SEE THIS</h1>
+            </sec:authorize>
             <div class="row col-md-12">
                 <div  class="col-md-8">
                     <div id="answer">
@@ -51,7 +54,7 @@
                                             <c:out value="${author.authorId}" />
                                         </td>
                                         <td><form method="POST" action="<%= response.encodeURL("AuthorController?action=details")%>">
-                                                <input type="submit" class="submitLink" value="${author.authorName}" name="submit"> 
+                                                <input type="submit" class="submitLink" value="${author.authorName}" name="submit"/> 
                                                 <input type="hidden" id="authorId" name="authorId" value="${author.authorId}"/>
                                             </form>
                                         </td>

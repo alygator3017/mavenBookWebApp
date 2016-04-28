@@ -48,6 +48,13 @@
                             <li>
                                 <a href="<%= response.encodeURL(this.getServletContext().getContextPath() + "/AuthorController?action=adminList")%>">Back</a>
                             </li>
+                            <li>
+
+                                <a href ="#"> Logged in as: <sec:authentication property="principal.username"></sec:authentication> </a>
+                                </li>
+                                <li>
+                                    <a href='<%= this.getServletContext().getContextPath() + "/j_spring_security_logout"%>'>Log Me Out</a>
+                            </li>
                         </ul>
                     </div>
                 </div>

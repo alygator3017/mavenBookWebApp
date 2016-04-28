@@ -12,7 +12,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        
+        <c:set var="context" value="${pageContext.request.contextPath}" /> 
         <title>Book Database</title>
         <!--js needed at top for hidden field-->
         <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
@@ -33,7 +33,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a href="index.html" class="navbar-brand" style="text-align: center">Book library</a>
+                        <a href="${context}/index.html" class="navbar-brand" style="text-align: center">Book library</a>
                     </div>
                     <div class="navbar-collapse collapse" id="navbar-main">
                         <ul class="nav navbar-nav">
@@ -42,6 +42,12 @@
                             </li>
                             <li>
                                 <a href="<%= response.encodeURL("AuthorController?action=list")%>">Back</a>
+                            </li>
+                            <li>
+                                <a href ="#"> Logged in as: <sec:authentication property="principal.username"></sec:authentication> </a>
+                                </li>
+                                <li>
+                                    <a href='<%= this.getServletContext().getContextPath() + "/j_spring_security_logout"%>'>Log Me Out</a>
                             </li>
                         </ul>
                     </div>
@@ -71,7 +77,9 @@
                     </div>
                 </fieldset>
             </form>
-
+            <form method="POST" action="<%= response.encodeURL("AuthorController?action=Back")%>" class="detailsForm col-lg-8">
+                <input type="submit" value="Back" name="submit" class="btn btn-primary"/>
+            </form>
 
             <div class="push"></div>
         </div>

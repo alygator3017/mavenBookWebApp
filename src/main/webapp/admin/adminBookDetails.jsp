@@ -43,6 +43,13 @@
                             <li>
                                 <a href="<%= response.encodeURL(this.getServletContext().getContextPath() + "/BookController?action=list")%>">Back</a>
                             </li>
+                            <li>
+
+                                <a href ="#"> Logged in as: <sec:authentication property="principal.username"></sec:authentication> </a>
+                                </li>
+                                <li>
+                                    <a href='<%= this.getServletContext().getContextPath() + "/j_spring_security_logout"%>'>Log Me Out</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -89,8 +96,8 @@
                             </select>
                         </div>
                     </div>
-                        <input type="submit" value="Save Edit" name="submit" />&nbsp;
-                        <input type="submit" value="Delete" name="submit" />
+                    <input type="submit" value="Save Edit" name="submit" />&nbsp;
+                    <input type="submit" value="Delete" name="submit" />
                 </fieldset>
             </form>
             <form method="POST" action="<%= response.encodeURL(this.getServletContext().getContextPath() + "/BookController?action=adminBack")%>" class="detailsForm col-lg-8">

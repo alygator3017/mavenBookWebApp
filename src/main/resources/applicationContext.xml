@@ -24,7 +24,9 @@
           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 ">
-    
+   <!-- if you want to make everything secret
+    <context:property-placeholder location="file:/springconfig.properties"/>
+    -->
     <!-- Scans within the base package of the application for Spring annotations to configure as beans -->
     <context:component-scan base-package="edu.wctc.ajs.bookwebapp">
         <context:exclude-filter type="regex" expression="edu\.wctc\.ajs\.bookwebapp\.repository.*" />
@@ -128,4 +130,30 @@
     </bean>
 
     <tx:annotation-driven />   
+    <!-- *********EMAIL SENDER STUFF********** -->
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.sendgrid.net"/>
+        <property name="username" value="${mail.username}"/>
+        <property name="password" value="${mail.password}"/>
+        <property name="port" value="587"/>
+        <property name="javaMailProperties">
+            <props>
+                <!-- Use SMTP transport protocol -->
+                <prop key="mail.transport.protocol">smtp</prop>
+                <!-- Use SMTP-AUTH to authenticate to SMTP server -->
+                <prop key="mail.smtp.auth">true</prop>
+                <!-- Use TLS to encrypt communication with SMTP server -->
+                <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- this is a template message that we can pre-load with default state -->
+    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
+        <!-- if using Gmail, the from must be the address of the account holder -->
+        <property name="from" value="${mail.username}"/>
+	<!-- replace the value text with your own -->
+        <property name="subject" value="Web App Registration - One More Step Required"/>
+    </bean>
+    <!-- ********* /EMAIL SENDER STUFF ************* -->
 </beans>

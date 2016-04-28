@@ -72,7 +72,6 @@
                     </table>
                     </form>
                 </div>
-                <div class="col-md-12" name="recordsCreated" id="recordsCreated">Records Created in Session: ${recordsCreated}</div>
                 <div class="col-md-12 message" name="message" id="message">${msg}</div>
             </div>
 
